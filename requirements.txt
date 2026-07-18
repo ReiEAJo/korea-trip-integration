@@ -1,0 +1,14 @@
+streamlit
+pandas
+plotly
+pytrends
+requests
+python-dotenv
+scikit-learn
+numpy
+matplotlib
+seaborn
+koreanize-matplotlib
+folium
+apify-client
+wordcloud
