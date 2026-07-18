@@ -285,9 +285,9 @@ def render_foreigner_trend():
             geo=dict(
                 showframe=False,
                 showcoastlines=True,
-                coastlinecolor="white",
+                coastlinecolor="black",
                 showcountries=True,
-                countrycolor="white",
+                countrycolor="black",
                 bgcolor="rgba(0,0,0,0)",
                 fitbounds="locations"  # 데이터가 있는 위치를 기준으로 줌인 (여백 제거)
             ),
