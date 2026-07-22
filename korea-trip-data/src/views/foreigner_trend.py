@@ -80,124 +80,58 @@ def render_foreigner_trend():
     with kpi_col3:
         st.metric(label="주요 방문 연령층", value=top_age)
 
-    # 월별 추이 라인 차트
+    # 1-1. 왜 관심이 많을까? 주요 키워드 분석
     with st.container():
-        st.markdown("#### 월별 외래 관광객 유입 추이")
-        df_monthly_sorted = df_monthly.sort_values('기준년월')
-        fig = px.line(
-            df_monthly_sorted, x="기준년월", y="조회기간 방문자 수", 
-            labels={"조회기간 방문자 수": "관광객 수(명)", "기준년월": "연월"},
-            markers=True,
-            color_discrete_sequence=["#00F0FF"] # Neon Cyan
-        )
-        fig.update_traces(
-            line=dict(width=3),
-            marker=dict(size=8, symbol="circle", line=dict(width=2, color="white")),
-            hovertemplate="<b>기준연월</b>: %{x}<br><b>관광객 수</b>: %{y:,.0f}명<extra></extra>"
-        )
-        fig.update_layout(
-            hovermode="x unified",
-            plot_bgcolor="rgba(0,0,0,0)",
-            paper_bgcolor="rgba(0,0,0,0)",
-            font=dict(family="Pretendard, sans-serif", size=14, color="#E2E8F0"),
-            hoverlabel=dict(bgcolor="#E2E8F0", font_size=13, font_family="Pretendard", font=dict(color="#F8FAFC")),
-            margin=dict(l=20, r=20, t=30, b=20),
-            xaxis=dict(type='category', showgrid=False, zeroline=False, linecolor="#CBD5E1"),
-            yaxis=dict(showgrid=True, gridcolor="#E2E8F0", zeroline=False, linecolor="#CBD5E1")
-        )
-        st.plotly_chart(fig, use_container_width=True, key='chart_foreigner_trend_fig_13')
-        with st.expander("📊 데이터 테이블 및 통계 요약"):
-            st.caption("🔹 **자료 출처:** 한국관광공사(한국관광데이터랩) - 방한 외래 관광객 통계")
-            st.dataframe(df_monthly_sorted[['기준년월', '조회기간 방문자 수']].describe(include='all').astype(str), use_container_width=True)
-            st.dataframe(df_monthly_sorted[['기준년월', '조회기간 방문자 수']], use_container_width=True)
+        st.markdown("### 🔤 1-1. 왜 관심이 많을까? 주요 키워드 분석")
+        st.caption("외국인 관광객들의 관심이 높은 한국 주요 로컬 도시별 키워드 및 워드클라우드 분석입니다.")
         
+        cities_list = ["경주", "강릉", "안동", "수원", "양양", "남해", "울산", "평택", "창원", "춘천", "여수", "전주"]
+        keywords_list = [
+            "역사 템플스테이 불국사 한옥 문화재 첨성대 전통",
+            "바다 서핑 카페거리 해변 순두부 힐링 동해",
+            "하회탈 전통 한옥 고택 역사 서원 안동찜닭",
+            "수원화성 성곽 갈비 당일치기 역사 근교 지하철",
+            "서핑 양양 서피비치 클럽 젊음 바다 인스타",
+            "독일마을 다랭이마을 남해대교 힐링 바다 드라이브",
+            "비즈니스 출장 공업 공장 바이어 현대 산업",
+            "미군기지 비즈니스 산업단지 평택항 일자리 근로자",
+            "산업 비즈니스 출장 창원공단 벚꽃 군항제 기계",
+            "닭갈비 남이섬 호수 엠티 가평 근교 ITX",
+            "여수밤바다 낭만포차 돌산대교 케이블카 간장게장",
+            "한옥마을 먹방 전주비빔밥 막걸리 한복 성당"
+        ]
+        df_kw = pd.DataFrame({"도시": cities_list, "관심_키워드": keywords_list})
+        
+        col_kw1, col_kw2 = st.columns([2, 3])
+        with col_kw1:
+            st.markdown("#### **도시별 키워드 선택**")
+            selected_city_ft = st.selectbox("키워드를 확인하고 싶은 도시를 선택하세요:", df_kw["도시"].unique(), key="ft_city_select")
+            text_data_ft = df_kw[df_kw["도시"] == selected_city_ft]["관심_키워드"].values[0]
+            st.info(f"💡 **{selected_city_ft}**의 인기 태그: {text_data_ft}")
+
+        with col_kw2:
+            from wordcloud import WordCloud
+            import matplotlib.pyplot as plt
+            
+            font_path = "C:/Windows/Fonts/malgun.ttf"
+            if not os.path.exists(font_path):
+                font_path = None
+                
+            wordcloud = WordCloud(
+                width=500, height=320, 
+                background_color='white',
+                font_path=font_path
+            ).generate(text_data_ft)
+            
+            fig_wc, ax_wc = plt.subplots(figsize=(6, 3.8))
+            ax_wc.imshow(wordcloud, interpolation='bilinear')
+            ax_wc.axis("off")
+            st.pyplot(fig_wc)
+            plt.close(fig_wc)
+
     st.markdown("---")
 
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("#### 1. 성별/연령대별 교차 분포")
-        # 데이터를 롱폼으로 변환
-        df_long = pd.melt(df_gender_age, id_vars=['연령 구분'], value_vars=['남성 승객 수(명)', '여성 승객 수(명)'], 
-                          var_name='성별', value_name='인원수')
-        df_long['성별'] = df_long['성별'].replace({'남성 승객 수(명)': '남성', '여성 승객 수(명)': '여성'})
-        
-        # 연령 구분 라벨 변경
-        age_mapping = {
-            '0~9세': '0대', '10~19세': '10대', '20~29세': '20', 
-            '30~39세': '30', '40~49세': '40', '50~59세': '50', 
-            '60~69세': '60', '70~79세': '70', '80세이상': '80+'
-        }
-        df_long['연령 구분'] = df_long['연령 구분'].map(age_mapping).fillna(df_long['연령 구분'])
-        
-        # 인구 피라미드를 위해 남성 인원수를 음수로 변환
-        df_long.loc[df_long['성별'] == '남성', '인원수'] = -df_long.loc[df_long['성별'] == '남성', '인원수']
-        df_long['실제 인원수(명)'] = df_long['인원수'].abs()
-        
-        fig_gender_age = px.bar(
-            df_long, x="인원수", y="연령 구분", color="성별",
-            orientation='h',
-            labels={"인원수": "관광객 수(명)", "연령 구분": "연령대"},
-            barmode="relative",
-            color_discrete_map={"여성": "#38BDF8", "남성": "#2563EB"},
-            category_orders={"연령 구분": ["0", "10", "20", "30", "40", "50", "60", "70", "80+"]},
-            hover_data={"실제 인원수(명)": True, "인원수": False}
-        )
-        
-        # 동적 X축 틱 생성 (음수를 양수로 표시, M 단위)
-        max_val = df_long['실제 인원수(명)'].max()
-        tick_step = 1000000
-        limit = int((max_val // tick_step + 1) * tick_step)
-        ticks = list(range(-limit, limit + 1, tick_step))
-        tick_texts = [f"{abs(t)//1000000}M" if t != 0 else "0" for t in ticks]
-        
-        fig_gender_age.update_layout(
-            plot_bgcolor="rgba(0,0,0,0)",
-            paper_bgcolor="rgba(0,0,0,0)",
-            font=dict(family="Pretendard, sans-serif", size=14, color="#E2E8F0"),
-            hoverlabel=dict(bgcolor="#E2E8F0", font_size=13, font_family="Pretendard", font=dict(color="#F8FAFC")),
-            margin=dict(l=20, r=20, t=30, b=20),
-            xaxis=dict(
-                tickmode='array', tickvals=ticks, ticktext=tick_texts,
-                showgrid=True, gridcolor="#E2E8F0", zeroline=True, zerolinecolor="#475569", linecolor="#CBD5E1"
-            ),
-            yaxis=dict(showgrid=False, zeroline=False, linecolor="#CBD5E1")
-        )
-        st.plotly_chart(fig_gender_age, use_container_width=True, key='chart_foreigner_trend_fig_gender_age_14')
-        with st.expander("📊 성별/연령대별 교차표"):
-            st.caption("🔹 **자료 출처:** 한국관광공사(한국관광데이터랩) - 방한 외래 관광객 성별/연령대별 통계")
-            crosstab_df = pd.crosstab(df_long['연령 구분'], df_long['성별'], values=df_long['실제 인원수(명)'], aggfunc='sum').fillna(0)
-            st.dataframe(crosstab_df, use_container_width=True)
 
-    with col2:
-        st.markdown("#### 2. 방한 외래객 목적별 점유율")
-        
-        df_share = df_purpose.nlargest(7, "방문자 수(명)").sort_values(by="방문자 수(명)", ascending=True)
-        
-        fig_share = px.bar(
-            df_share, x="방문자 수(명)", y="목적 유형", orientation='h',
-            color="방문자 수(명)", color_continuous_scale='Blues',
-            text_auto='.3s'
-        )
-        fig_share.update_traces(textposition='outside', marker=dict(line=dict(color='#FFFFFF', width=1)))
-        fig_share.update_layout(
-            showlegend=False,
-            coloraxis_showscale=False,
-            plot_bgcolor="rgba(0,0,0,0)",
-            paper_bgcolor="rgba(0,0,0,0)",
-            font=dict(family="Pretendard, sans-serif", size=14, color="#E2E8F0"),
-            hoverlabel=dict(bgcolor="#E2E8F0", font_size=13, font_family="Pretendard", font=dict(color="#F8FAFC")),
-            margin=dict(l=20, r=20, t=20, b=20),
-            xaxis=dict(showgrid=True, gridcolor="#E2E8F0", title="방문자 수 (명)"),
-            yaxis=dict(showgrid=False, title="")
-        )
-        
-        st.plotly_chart(fig_share, use_container_width=True, key='chart_foreigner_trend_fig_share_15')
-        with st.expander("📊 목적별 방문자 수 통계"):
-            st.caption("🔹 **자료 출처:** 한국관광공사(한국관광데이터랩) - 목적별 방한 외래객 입국현황")
-            st.dataframe(df_share[['목적 유형', '방문자 수(명)']].describe(include='all').astype(str), use_container_width=True)
-            st.dataframe(df_share[['목적 유형', '방문자 수(명)']], use_container_width=True)
-        
-    st.markdown("---")
     
     st.header("🗺️ 국적 집중화 현상")
     st.markdown("특정 국가에 편중된 의존도를 분석합니다.")

@@ -70,24 +70,25 @@ with st.sidebar:
     st.markdown("### 📁 수집 데이터 출처")
     st.markdown("""
     <div style="font-size:0.82rem; color:#475569; line-height:1.75; font-family:'Pretendard', sans-serif;">
-    · 한국관광공사(KTO) 외래객 통계<br>
+    · 한국관광공사(KTO) 외래객 통계 & 데이터랩<br>
+    · 한국문화관광연구원 외래관광객 실태조사<br>
     · 신한카드 & BC카드 소비 빅데이터<br>
+    · 문화체육관광부 & 공공데이터포털(ODCloud)<br>
+    · 문화공공데이터광장 (지역축제/여행지 정보)<br>
+    · 글로벌 OTA (Klook, KKday, GetYourGuide, Creatrip)<br>
     · 인스타그램 리뷰 및 해시태그 버즈<br>
     · 캐치테이블 글로벌 예약/리뷰<br>
     · 네이버 지도 외국인 리뷰<br>
     · 구글 트렌드 분석<br>
     · TripAdvisor 평점 및 리뷰<br>
     · Tumblr 포럼 리뷰 데이터<br>
-    · KKday, GetYourGuide, Creatrip 상품/리뷰<br>
     · 기준기간: 2025.06 ~ 2026.05
     </div>
     """, unsafe_allow_html=True)
 
-# 6. 메인 페이지 9개 탭 구성
+# 6. 메인 페이지 탭 구성
 tabs = st.tabs([
-    "🏠 홈", 
     "📈 방한 외래객 추이", 
-    "💳 관광 소비 현황", 
     "🗺️ 인기 관광 지역", 
     "💡 관광 인사이트 및 제언",
     "🔍 지역별 관심도 분석",
@@ -97,30 +98,24 @@ tabs = st.tabs([
 ])
 
 with tabs[0]:
-    render_home()
-
-with tabs[1]:
     render_foreigner_trend()
 
-with tabs[2]:
-    render_tourism_diversity()
-
-with tabs[3]:
+with tabs[1]:
     render_demand_analysis()
 
-with tabs[4]:
+with tabs[2]:
     render_eda_insights()
 
-with tabs[5]:
+with tabs[3]:
     korea_trip_data2_app.render_korea_trip_data2_dashboard(active_page="interest", show_sidebar=False)
 
-with tabs[6]:
+with tabs[4]:
     korea_trip_data2_app.render_korea_trip_data2_dashboard(active_page="visit", show_sidebar=False)
 
-with tabs[7]:
+with tabs[5]:
     korea_trip_data2_app.render_korea_trip_data2_dashboard(active_page="vs", show_sidebar=False)
 
-with tabs[8]:
+with tabs[6]:
     import importlib.util
     test_app_path = os.path.join(korea_trip_data2_path, "test", "app.py")
     spec_test = importlib.util.spec_from_file_location("test_app", test_app_path)

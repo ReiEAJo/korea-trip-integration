@@ -1617,16 +1617,18 @@ def render_korea_trip_data2_dashboard(active_page=None, show_sidebar=True):
             st.markdown("### 📁 데이터 출처")
             st.markdown("""
             <div style="font-size:0.8rem;color:#64748B;line-height:1.7;">
-            · 인스타그램 리뷰/해시태그<br>
-            · 캐치테이블 글로벌 리뷰<br>
+            · 한국관광공사(KTO) 외래객 통계 & 데이터랩<br>
+            · 한국문화관광연구원 외래관광객 실태조사<br>
+            · 신한카드 & BC카드 소비 빅데이터<br>
+            · 문화체육관광부 & 공공데이터포털(ODCloud)<br>
+            · 문화공공데이터광장 (지역축제/여행지 정보)<br>
+            · 글로벌 OTA (Klook, KKday, GetYourGuide, Creatrip)<br>
+            · 인스타그램 리뷰 및 해시태그 버즈<br>
+            · 캐치테이블 글로벌 예약/리뷰<br>
             · 네이버 지도 외국인 리뷰<br>
             · 구글 트렌드 분석<br>
-            · TripAdvisor 평점/리뷰<br>
-            · Tumblr 포럼 리뷰<br>
-            · KKday 제품 상세/리뷰<br>
-            · GetYourGuide 리뷰<br>
-            · Creatrip 제품 상세/리뷰<br>
-            · 한국관광공사(KTO) 외래객 통계<br>
+            · TripAdvisor 평점 및 리뷰<br>
+            · Tumblr 포럼 리뷰 데이터<br>
             · 기준기간: 2025.06 ~ 2026.05
             </div>
             """, unsafe_allow_html=True)
