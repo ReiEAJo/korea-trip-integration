@@ -18,177 +18,14 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from api.kto_api import get_area_service_demand, get_area_cultural_demand
 
 def render_demand_analysis():
-    st.title("🗺️ 인기 관광 지역 분석")
-    st.markdown("전국 주요 관광지의 온라인 관심도(SNS), 실제 방문도(내비) 및 성수기 집중도를 확인합니다.")
-    st.caption("🔹 **자료 출처:** 한국관광공사(한국관광데이터랩), 문화공공데이터광장, 글로벌 OTA 통합 데이터(Klook, KKday, GetYourGuide)")
+    st.title("🏛️ 지역별 관광 인프라 분석")
+    st.markdown("전국 주요 관광지의 글로벌 OTA 플랫폼 상품 인프라 및 문화공공데이터 기반의 인프라 현황을 확인합니다.")
+    st.caption("🔹 **자료 출처:** 문화공공데이터광장, 글로벌 OTA 통합 데이터(Klook, KKday, GetYourGuide)")
     st.markdown("---")
 
     data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'data')
 
-    @st.cache_data
-    def load_eda_data():
-        df_visitor_region = pd.read_csv(os.path.join(data_dir, '20260620154323_외국인 지역별 방문자 수 추이.csv'))
-        # 202501 형태의 정수/문자열을 YYYY-MM 형식의 문자열(혹은 datetime)로 변환하여 x축이 숫자로 인식되지 않게 방지
-        df_visitor_region['날짜'] = pd.to_datetime(df_visitor_region['날짜'].astype(str), format='%Y%m').dt.strftime('%Y-%m')
-        return df_visitor_region
-
-    CACHE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), '.cache')
-    os.makedirs(CACHE_DIR, exist_ok=True)
-    # (구글 트렌드 수집 로직 제거됨)
-
-    st.header("1. 🚗 관심도 및 실제 방문도")
-    try:
-        data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data')
-        df_kto_demand = pd.read_csv(os.path.join(data_dir, '20260702210628_지역별 검색건수.csv'), encoding='utf-8')
-    except:
-        df_kto_demand = pd.read_csv(os.path.join(data_dir, '20260702210628_지역별 검색건수.csv'), encoding='cp949')
-
-    if not df_kto_demand.empty:
-        # 서울, 부산, 제주 제외 필터링
-        df_kto_demand = df_kto_demand[~df_kto_demand["광역지자체"].str.contains("서울|부산|제주")].copy()
-        df_kto_demand["signguNm"] = df_kto_demand["광역지자체"] + " " + df_kto_demand["기초지자체"]
-        df_kto_demand["snsMentionCo"] = df_kto_demand["기초지자체 검색건수"]
-        df_kto_demand["naviSearchCo"] = df_kto_demand["기초지자체 검색건수"]
-        
-        with st.container():
-            col_chart1, col_chart2 = st.columns(2)
-            with col_chart1:
-                st.markdown("#### 🔥 온라인 관심도 및 연관 검색어")
-                
-                # API 연동 불가에 따른 현실적인 SNS 관심도(Proxy) 데이터 구성 (실제 방문도와 대비되는 인사이트 도출용)
-                sns_proxy_data = {
-                    "signguNm": ["강원특별자치도 춘천시", "경상북도 경주시", "인천광역시 중구", "전북특별자치도 전주시", "경기도 가평군"],
-                    "combinedScore": [98, 85, 78, 72, 65],
-                    "snsKeywords_gt": [
-                        "남이섬, 닭갈비, 감성카페", 
-                        "황리단길, 야경, 십원빵", 
-                        "영종도, 호캉스, 오션뷰", 
-                        "한옥마을, 한복, 길거리음식", 
-                        "아침고요수목원, 글램핑"
-                    ]
-                }
-                df_top_sns = pd.DataFrame(sns_proxy_data)
-                
-                x_col = "combinedScore"
-                kw_col = "snsKeywords_gt"
-                x_axis_title = "온라인 관심도 (SNS 언급량 기준)"
-
-                # 4. 막대 그래프 시각화 (툴팁에 키워드 내장)
-                fig_sns = px.bar(
-                    df_top_sns, x=x_col, y="signguNm",
-                    orientation="h",
-                    color=x_col,
-                    color_continuous_scale="Teal",
-                    custom_data=[kw_col]
-                )
-                fig_sns.update_traces(
-                    hovertemplate="<b>%{y}</b><br>관심도: %{x:.0f}<br>연관 검색어: %{customdata[0]}<extra></extra>"
-                )
-                fig_sns.update_layout(
-                    height=400,
-                    yaxis=dict(categoryorder='total ascending'),
-                    plot_bgcolor="rgba(0,0,0,0)",
-                    paper_bgcolor="rgba(0,0,0,0)",
-                    font=dict(family="Pretendard, sans-serif", size=14, color="#E2E8F0"),
-                    hoverlabel=dict(bgcolor="#E2E8F0", font_size=13, font_family="Pretendard", font=dict(color="#F8FAFC")),
-                    margin=dict(l=20, r=20, t=20, b=20),
-                    xaxis=dict(showgrid=True, gridcolor="#E2E8F0", zeroline=False, linecolor="#CBD5E1", title=x_axis_title),
-                    yaxis_title=None
-                )
-                st.plotly_chart(fig_sns, use_container_width=True, key='chart_demand_analysis_fig_sns_1')
-                with st.expander("📊 데이터 테이블 및 통계 요약"):
-                    st.caption("🔹 **자료 출처:** 한국관광공사(한국관광데이터랩) - 지역별 검색건수 기반 프록시")
-                    st.dataframe(df_top_sns.describe(include='all').astype(str), use_container_width=True)
-                    st.dataframe(df_top_sns, use_container_width=True)
-            with col_chart2:
-                st.markdown("#### 🧭 실제 방문도 (목적지 검색건수 Top 5)")
-                df_top_navi = df_kto_demand.nlargest(5, "naviSearchCo")
-                
-                fig_navi = px.bar(
-                    df_top_navi, x="naviSearchCo", y="signguNm",
-                    orientation="h",
-                    color="naviSearchCo",
-                    color_continuous_scale="Blues"
-                )
-                fig_navi.update_traces(
-                    hovertemplate="<b>%{y}</b><br>목적지 검색: %{x:,.0f}건<extra></extra>"
-                )
-                fig_navi.update_layout(
-                    height=400,
-                    yaxis=dict(categoryorder='total ascending'),
-                    plot_bgcolor="rgba(0,0,0,0)",
-                    paper_bgcolor="rgba(0,0,0,0)",
-                    font=dict(family="Pretendard, sans-serif", size=14, color="#E2E8F0"),
-                    hoverlabel=dict(bgcolor="#E2E8F0", font_size=13, font_family="Pretendard", font=dict(color="#F8FAFC")),
-                    margin=dict(l=20, r=20, t=20, b=20),
-                    xaxis=dict(showgrid=True, gridcolor="#E2E8F0", zeroline=False, linecolor="#CBD5E1", title="목적지 검색건수"),
-                    yaxis_title=None
-                )
-                st.plotly_chart(fig_navi, use_container_width=True, key='chart_demand_analysis_fig_navi_2')
-                with st.expander("📊 데이터 테이블 및 통계 요약"):
-                    st.caption("🔹 **자료 출처:** 한국관광공사(한국관광데이터랩) - 목적지 검색건수")
-                    st.dataframe(df_top_navi[['signguNm', 'naviSearchCo']].describe().astype(str), use_container_width=True)
-                    st.dataframe(df_top_navi[['signguNm', 'naviSearchCo']], use_container_width=True)
-    else:
-        st.warning("관광 서비스 수요 데이터를 불러올 수 없습니다.")
-
-    st.markdown("---")
-    st.header("2. 📍 방한 방문객 지역 집중화 추이")
-    try:
-        df_visitor_region = load_eda_data()
-        col3, col4 = st.columns(2)
-
-        with col3:
-            st.subheader("방문객 상위 5개 지역 추이 변화")
-            df_visitor_filtered = df_visitor_region[~df_visitor_region['지역'].str.contains("서울|부산|제주")]
-            df_region_sum = df_visitor_filtered.groupby('지역')['외국인 방문자수'].sum().reset_index()
-            top5_regions = df_region_sum.nlargest(5, '외국인 방문자수')['지역']
-            df_top5 = df_visitor_filtered[df_visitor_filtered['지역'].isin(top5_regions)]
-            fig3 = px.line(df_top5, x='날짜', y='외국인 방문자수', color='지역', markers=True,
-                           title="주요 관광 거점(상위 5개 지역) 쏠림 및 성장 추이",
-                           color_discrete_sequence=["#00F0FF", "#38BDF8", "#2563EB", "#1E3A8A", "#64748B"])
-            fig3.update_layout(
-                plot_bgcolor="rgba(0,0,0,0)",
-                paper_bgcolor="rgba(0,0,0,0)",
-                font=dict(family="Pretendard, sans-serif", size=14, color="#E2E8F0"),
-                hoverlabel=dict(bgcolor="#E2E8F0", font_size=13, font_family="Pretendard", font=dict(color="#F8FAFC")),
-                margin=dict(l=20, r=20, t=40, b=20),
-                xaxis=dict(type='category', showgrid=False, zeroline=False, linecolor="#CBD5E1"),
-                yaxis=dict(showgrid=True, gridcolor="#E2E8F0", zeroline=False, linecolor="#CBD5E1", tickformat=",")
-            )
-            st.plotly_chart(fig3, use_container_width=True, key='chart_demand_analysis_fig3_3')
-            with st.expander("📊 데이터 테이블 및 교차표"):
-                st.caption("🔹 **자료 출처:** 한국관광공사(한국관광데이터랩) - 외국인 지역별 방문자 수 추이")
-                crosstab_df = pd.crosstab(df_top5['날짜'], df_top5['지역'], values=df_top5['외국인 방문자수'], aggfunc='sum').fillna(0)
-                st.dataframe(crosstab_df, use_container_width=True)
-
-        with col4:
-            st.subheader("지역별 성수기(봄철) 수요 집중도")
-            df_heatmap = df_visitor_region.pivot(index='지역', columns='날짜', values='외국인 방문자수')
-            fig5 = go.Figure(data=go.Heatmap(
-                z=df_heatmap.values,
-                x=df_heatmap.columns,
-                y=df_heatmap.index,
-                colorscale='Teal',
-                xgap=2, ygap=2
-            ))
-            fig5.update_layout(
-                title="전국 지자체별/월별 방한 외국인 규모 히트맵",
-                plot_bgcolor="rgba(0,0,0,0)",
-                paper_bgcolor="rgba(0,0,0,0)",
-                font=dict(family="Pretendard, sans-serif", size=14, color="#E2E8F0"),
-                hoverlabel=dict(bgcolor="#E2E8F0", font_size=13, font_family="Pretendard", font=dict(color="#F8FAFC")),
-                margin=dict(l=20, r=20, t=40, b=20)
-            )
-            st.plotly_chart(fig5, use_container_width=True, key='chart_demand_analysis_fig5_4')
-            with st.expander("📊 데이터 테이블(히트맵 기초 데이터)"):
-                st.caption("🔹 **자료 출처:** 한국관광공사(한국관광데이터랩) - 외국인 지역별 방문자 수 히트맵")
-                st.dataframe(df_heatmap, use_container_width=True)
-    except Exception as e:
-        st.warning(f"지역별 방문자 수 데이터를 확인할 수 없습니다: {e}")
-        
-    st.markdown("---")
-    st.header("3. 🌍 OTA 플랫폼 기반 지역별 관광 인프라 현황")
+    st.header("1. 🌍 OTA 플랫폼 기반 지역별 관광 인프라 현황")
     st.markdown("글로벌 온라인 여행 플랫폼(GetYourGuide, Klook, Kkday)에 등록된 한국 관광 상품 데이터를 바탕으로 지역별 인프라, 방문 규모, 만족도를 분석합니다.")
 
     # 데이터 로딩 및 전처리 로직
@@ -317,7 +154,7 @@ def render_demand_analysis():
 
         # --- 문화공공데이터광장 추천 여행지 분석 추가 ---
         st.markdown("---")
-        st.header("4. 문화공공데이터광장 기반 지역별 인프라 분석")
+        st.header("2. 문화공공데이터광장 기반 지역별 인프라 분석")
         
         import sqlite3
         db_path = os.path.join(data_dir, 'tourist_spots.db')
@@ -476,7 +313,7 @@ def render_demand_analysis():
         ''')
         
         st.markdown('---')
-        st.header("5. 🔍 지역 인프라와 방문 규모 상관관계 분석")
+        st.header("3. 🔍 지역 인프라와 방문 규모 상관관계 분석")
         
         import numpy as np
         from sklearn.preprocessing import MinMaxScaler
@@ -528,13 +365,24 @@ def render_demand_analysis():
         spot_counts = df_spots.groupby('norm_region').size().reset_index(name='spot_count')
         
         # 3. 외국인 방문 규모 (목적지 검색건수, 서울/부산/제주 제외)
+        try:
+            df_kto_demand = pd.read_csv(os.path.join(data_dir, '20260702210628_지역별 검색건수.csv'), encoding='utf-8')
+        except:
+            try:
+                df_kto_demand = pd.read_csv(os.path.join(data_dir, '20260702210628_지역별 검색건수.csv'), encoding='cp949')
+            except:
+                df_kto_demand = pd.DataFrame()
+
         df_kto_demand_corr = df_kto_demand.copy()
-        if '광역지자체' in df_kto_demand_corr.columns:
+        if not df_kto_demand_corr.empty and '광역지자체' in df_kto_demand_corr.columns:
             df_kto_demand_corr = df_kto_demand_corr[~df_kto_demand_corr["광역지자체"].str.contains("서울|부산|제주")].copy()
             df_kto_demand_corr["signguNm"] = df_kto_demand_corr["광역지자체"] + " " + df_kto_demand_corr["기초지자체"]
         
-        df_kto_demand_corr['norm_region'] = df_kto_demand_corr['signguNm'].apply(normalize_region)
-        visit_volume = df_kto_demand_corr.groupby('norm_region')['기초지자체 검색건수'].sum().reset_index(name='visit_volume')
+        if not df_kto_demand_corr.empty and 'signguNm' in df_kto_demand_corr.columns:
+            df_kto_demand_corr['norm_region'] = df_kto_demand_corr['signguNm'].apply(normalize_region)
+            visit_volume = df_kto_demand_corr.groupby('norm_region')['기초지자체 검색건수'].sum().reset_index(name='visit_volume')
+        else:
+            visit_volume = pd.DataFrame(columns=['norm_region', 'visit_volume'])
         
         # 4. 추가 문화공공데이터 (축제, 다국어가이드, 세계음식점)
         culture_summary_path = os.path.join(data_dir, 'culture_infra_summary.csv')
