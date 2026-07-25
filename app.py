@@ -76,13 +76,23 @@ section[data-testid="stSidebar"] div.block-container {
     padding-top: 0.2rem !important;
 }
 
-/* 사이드바 접기/숨기기 버튼 항상 표시 보장 */
+/* 사이드바 접기/숨기기 및 펼치기 버튼(>>) 항상 표시 보장 */
+header[data-testid="stHeader"] {
+    background-color: transparent !important;
+    background: transparent !important;
+    z-index: 99999 !important;
+}
+
 [data-testid="stSidebarHeader"],
 [data-testid="stSidebarCollapseButton"],
-section[data-testid="stSidebar"] button[kind="header"] {
+[data-testid="stSidebarCollapsedControl"],
+section[data-testid="stSidebar"] button,
+header[data-testid="stHeader"] button {
     display: flex !important;
     visibility: visible !important;
     opacity: 1 !important;
+    color: #334155 !important;
+    z-index: 999999 !important;
 }
 
 /* 좌측 사이드바 연한 파란색(Soft Light Blue) 바탕 스타일 */
