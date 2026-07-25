@@ -91,10 +91,9 @@ tabs = st.tabs([
     "📈 방한 외래객 추이", 
     "🔍 지역별 관심도 분석",
     "🚶 지역별 방문도 분석",
-    "🏛️ 지역별 관광 인프라", 
     "⚖️ 관심도 vs 방문도 격차",
-    "💡 관광 인사이트 및 제언",
-    "🗺️ 외국인 방문 트렌드 지도"
+    "🏗️ 지역별 관광 인프라",
+    "💡 관광 인사이트 및 제언"
 ])
 
 with tabs[0]:
@@ -107,22 +106,10 @@ with tabs[2]:
     korea_trip_data2_app.render_korea_trip_data2_dashboard(active_page="visit", show_sidebar=False)
 
 with tabs[3]:
-    render_demand_analysis()
+    korea_trip_data2_app.render_korea_trip_data2_dashboard(active_page="vs", show_sidebar=False)
 
 with tabs[4]:
-    korea_trip_data2_app.render_korea_trip_data2_dashboard(active_page="vs", show_sidebar=False)
+    render_demand_analysis()
 
 with tabs[5]:
     render_eda_insights()
-
-with tabs[6]:
-    import importlib.util
-    test_app_path = os.path.join(korea_trip_data2_path, "test", "app.py")
-    if os.path.exists(test_app_path):
-        spec_test = importlib.util.spec_from_file_location("test_map_app", test_app_path)
-        test_map_app = importlib.util.module_from_spec(spec_test)
-        spec_test.loader.exec_module(test_map_app)
-        if hasattr(test_map_app, "main"):
-            test_map_app.main()
-    else:
-        st.warning("외국인 방문 트렌드 지도 모듈을 찾을 수 없습니다.")
