@@ -43,7 +43,19 @@ div[data-testid="stMainBlockContainer"] {
     padding-top: 0.5rem !important;
 }
 header[data-testid="stHeader"] {
-    display: none !important;
+    background-color: transparent !important;
+    background: transparent !important;
+    z-index: 99999 !important;
+}
+
+[data-testid="stSidebarCollapsedControl"],
+button[data-testid="stSidebarCollapseButton"],
+header[data-testid="stHeader"] button {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #334155 !important;
+    z-index: 999999 !important;
 }
 
 html, body, [data-testid="stAppViewContainer"] {
