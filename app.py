@@ -66,7 +66,7 @@ if "selected_menu" not in st.session_state:
     st.session_state.selected_menu = menu_options[0]
 
 # 텍스트 형태 메뉴 커스텀 CSS (연한 파란색 사이드바, 가로 길이 통일, 폰트 1.5배, 흰색 펼침목록)
-st.markdown(f"""
+st.markdown("""
 <style>
 /* 사이드바 상단 여백 축소 및 내용 위로 끌어올리기 */
 [data-testid="stSidebarUserContent"] {
@@ -216,24 +216,6 @@ div[data-testid="stSidebar"] div[data-testid="stExpander"] div[data-testid="stEx
     border-top: 1px solid #EFF6FF !important;
     padding: 12px 14px !important;
     border-radius: 0 0 10px 10px !important;
-}
-
-/* 클릭 가능한 원형 로고 버튼 스타일 */
-div[data-testid="stSidebar"] button[key="logo_home_button"] {
-    background-image: url("data:image/png;base64,{logo_b64}") !important;
-    background-size: cover !important;
-    background-position: center !important;
-    background-repeat: no-repeat !important;
-    width: 100% !important;
-    height: auto !important;
-    aspect-ratio: 1 / 1 !important;
-    border-radius: 50% !important;
-    border: none !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-    cursor: pointer !important;
-    padding: 0 !important;
-    margin: 0 0 12px 0 !important;
-    transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
 }
 
 div[data-testid="stSidebar"] button[key="logo_home_button"]:hover {
