@@ -79,11 +79,12 @@ section[data-testid="stSidebar"] {
     border-right: 1px solid #DBEAFE !important;
 }
 
-/* 로고 이미지 원형 및 중앙 정렬 스타일 */
+/* 로고 이미지 원형 및 중앙 정렬 스타일 (1.5배 축소) */
 [data-testid="stSidebar"] img {
+    width: 65% !important;
     border-radius: 50% !important;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15) !important;
-    margin-bottom: 16px !important;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15) !important;
+    margin-bottom: 10px !important;
     display: block !important;
     margin-left: auto !important;
     margin-right: auto !important;
@@ -101,11 +102,11 @@ section[data-testid="stSidebar"] {
 [data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] {
     display: flex !important;
     flex-direction: column !important;
-    gap: 8px !important;
+    gap: 5px !important;
     width: 100% !important;
 }
 
-/* 각 라디오 메뉴 캡슐 버튼 */
+/* 각 라디오 메뉴 캡슐 버튼 (1.5배 컴팩트 축소) */
 [data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label {
     display: flex !important;
     align-items: center !important;
@@ -113,12 +114,12 @@ section[data-testid="stSidebar"] {
     box-sizing: border-box !important;
     background-color: #FFFFFF !important;
     border: 1px solid #DBEAFE !important;
-    border-radius: 10px !important;
-    padding: 10px 14px !important;
+    border-radius: 7px !important;
+    padding: 6px 10px !important;
     margin: 0 !important;
     cursor: pointer !important;
     transition: all 0.15s ease-in-out !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
 }
 
 /* 라디오 동그라미 아이콘 제거 */
@@ -137,13 +138,13 @@ section[data-testid="stSidebar"] {
 [data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label[aria-checked="true"] {
     background-color: #2563EB !important;
     border-color: #1D4ED8 !important;
-    box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3) !important;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25) !important;
 }
 
-/* 메뉴 텍스트 폰트 스타일 */
+/* 메뉴 텍스트 폰트 스타일 (1.5배 축소) */
 [data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label p {
     font-family: 'Pretendard', sans-serif !important;
-    font-size: 1.05rem !important;
+    font-size: 0.88rem !important;
     font-weight: 600 !important;
     color: #334155 !important;
     margin: 0 !important;
