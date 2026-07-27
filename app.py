@@ -184,10 +184,11 @@ div[data-testid="stSidebar"] div[data-testid="stExpander"] summary {
 }
 
 div[data-testid="stSidebar"] div[data-testid="stExpander"] details summary p {
-    font-size: 0.68rem !important;
+    font-size: 0.65rem !important;
     font-weight: 600 !important;
     color: #334155 !important;
     margin: 0 !important;
+    white-space: nowrap !important;
 }
 
 div[data-testid="stSidebar"] div[data-testid="stExpander"] div[data-testid="stExpanderDetails"] {
