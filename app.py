@@ -41,10 +41,17 @@ spec.loader.exec_module(korea_trip_data2_app)
 # 4. 공통 라이트 모드 스타일 적용
 apply_custom_style()
 
+import base64
+
 # 5. 통합 사이드바 구성 (로고 및 텍스트 메뉴)
 logo_path = os.path.join(workspace_root, "korea_trip_logo_circle.png")
 if not os.path.exists(logo_path):
     logo_path = os.path.join(workspace_root, "korea trip project_logo.jpeg")
+
+logo_b64 = ""
+if os.path.exists(logo_path):
+    with open(logo_path, "rb") as f:
+        logo_b64 = base64.b64encode(f.read()).decode("utf-8")
 
 menu_options = [
     "📈 방한 외래객 추이", 
@@ -59,7 +66,7 @@ if "selected_menu" not in st.session_state:
     st.session_state.selected_menu = menu_options[0]
 
 # 텍스트 형태 메뉴 커스텀 CSS (연한 파란색 사이드바, 가로 길이 통일, 폰트 1.5배, 흰색 펼침목록)
-st.markdown("""
+st.markdown(f"""
 <style>
 /* 사이드바 상단 여백 축소 및 내용 위로 끌어올리기 */
 [data-testid="stSidebarUserContent"] {
@@ -211,6 +218,33 @@ div[data-testid="stSidebar"] div[data-testid="stExpander"] div[data-testid="stEx
     border-radius: 0 0 10px 10px !important;
 }
 
+/* 클릭 가능한 원형 로고 버튼 스타일 */
+div[data-testid="stSidebar"] button[key="logo_home_button"] {
+    background-image: url("data:image/png;base64,{logo_b64}") !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+    border-radius: 50% !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    margin: 0 0 12px 0 !important;
+    transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+}
+
+div[data-testid="stSidebar"] button[key="logo_home_button"]:hover {
+    transform: scale(1.03) !important;
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.2) !important;
+}
+
+div[data-testid="stSidebar"] button[key="logo_home_button"]:active {
+    transform: scale(0.97) !important;
+}
+
 div[data-testid="stSidebar"] div[data-testid="stExpander"] details summary p {
     font-size: 0.88rem !important;
     font-weight: 600 !important;
@@ -221,9 +255,11 @@ div[data-testid="stSidebar"] div[data-testid="stExpander"] details summary p {
 
 # 사이드바 내용 렌더링
 with st.sidebar:
-    if os.path.exists(logo_path):
-        # 상단 로고 1.5배 추가 확대 (사이드바 전체 너비 채움)
-        st.image(logo_path, use_container_width=True)
+    if logo_b64:
+        # 클릭 시 첫 번째 메뉴(방한 외래객 추이)로 이동하는 로고 버튼
+        if st.button("", key="logo_home_button", help="클릭 시 메인(첫 번째 메뉴) 화면으로 이동합니다"):
+            st.session_state.main_menu_selection = menu_options[0]
+            st.rerun()
 
     if "main_menu_selection" not in st.session_state:
         st.session_state.main_menu_selection = menu_options[0]
