@@ -89,16 +89,18 @@ section[data-testid="stSidebar"] {
     border-right: 1px solid #DBEAFE !important;
 }
 
-/* 로고 이미지 원형 및 중앙 정렬 스타일 (크기 확대) */
+/* 로고 이미지 원형 및 메뉴 버튼과 동일한 100% 가로 너비 설정 */
 [data-testid="stSidebar"] img {
-    width: 85% !important;
+    width: 100% !important;
+    max-width: 100% !important;
     border-radius: 50% !important;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.18) !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.2) !important;
     margin-top: 0px !important;
-    margin-bottom: 8px !important;
+    margin-bottom: 10px !important;
     display: block !important;
     margin-left: auto !important;
     margin-right: auto !important;
+    object-fit: cover !important;
 }
 
 /* 라디오 메뉴 가로/세로 레이아웃 규격화 */
