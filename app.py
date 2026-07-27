@@ -65,12 +65,22 @@ menu_options = [
 if "selected_menu" not in st.session_state:
     st.session_state.selected_menu = menu_options[0]
 
-# 텍스트 형태 메뉴 커스텀 CSS (연한 파란색 사이드바, 가로 길이 통일, 깔끔한 캡슐 라벨, 흰색 펼침목록)
+# 텍스트 형태 메뉴 커스텀 CSS (연한 파란색 사이드바, 가로 길이 통일, 깔끔한 캡슐 라벨, 콤팩트 펼침목록)
 st.markdown("""
 <style>
-/* 사이드바 상단 여백 축소 및 연한 파란색 바탕 */
+/* 사이드바 상단 여백 최소화 (최상단으로 끌어올리기) */
 [data-testid="stSidebarUserContent"] {
-    padding-top: 1rem !important;
+    padding-top: 0.1rem !important;
+}
+
+[data-testid="stSidebarHeader"] {
+    padding-top: 0.1rem !important;
+    padding-bottom: 0rem !important;
+    margin-bottom: -20px !important;
+}
+
+section[data-testid="stSidebar"] div.block-container {
+    padding-top: 0.1rem !important;
 }
 
 section[data-testid="stSidebar"] {
@@ -79,12 +89,13 @@ section[data-testid="stSidebar"] {
     border-right: 1px solid #DBEAFE !important;
 }
 
-/* 로고 이미지 원형 및 중앙 정렬 스타일 (1.5배 축소) */
+/* 로고 이미지 원형 및 중앙 정렬 스타일 (1.5배 축소 & 상단 밀착) */
 [data-testid="stSidebar"] img {
     width: 65% !important;
     border-radius: 50% !important;
     box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15) !important;
-    margin-bottom: 10px !important;
+    margin-top: 0px !important;
+    margin-bottom: 8px !important;
     display: block !important;
     margin-left: auto !important;
     margin-right: auto !important;
@@ -102,7 +113,7 @@ section[data-testid="stSidebar"] {
 [data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] {
     display: flex !important;
     flex-direction: column !important;
-    gap: 5px !important;
+    gap: 4px !important;
     width: 100% !important;
 }
 
@@ -115,7 +126,7 @@ section[data-testid="stSidebar"] {
     background-color: #FFFFFF !important;
     border: 1px solid #DBEAFE !important;
     border-radius: 7px !important;
-    padding: 6px 10px !important;
+    padding: 5px 9px !important;
     margin: 0 !important;
     cursor: pointer !important;
     transition: all 0.15s ease-in-out !important;
@@ -144,7 +155,7 @@ section[data-testid="stSidebar"] {
 /* 메뉴 텍스트 폰트 스타일 (1.5배 축소) */
 [data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label p {
     font-family: 'Pretendard', sans-serif !important;
-    font-size: 0.88rem !important;
+    font-size: 0.86rem !important;
     font-weight: 600 !important;
     color: #334155 !important;
     margin: 0 !important;
@@ -157,20 +168,30 @@ section[data-testid="stSidebar"] {
     font-weight: 700 !important;
 }
 
-/* 사이드바 expander 및 하단 데이터 목록 바탕 순백색(#FFFFFF) 설정 */
+/* 수집 데이터 출처 expander 버튼 1.5배 축소 및 콤팩트 디자인 */
 div[data-testid="stSidebar"] div[data-testid="stExpander"] {
     background-color: #FFFFFF !important;
     border: 1px solid #BFDBFE !important;
-    border-radius: 10px !important;
-    margin-top: 16px !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+    border-radius: 7px !important;
+    margin-top: 6px !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
     overflow: hidden !important;
 }
 
+div[data-testid="stSidebar"] div[data-testid="stExpander"] summary {
+    padding: 4px 8px !important;
+    min-height: auto !important;
+}
+
 div[data-testid="stSidebar"] div[data-testid="stExpander"] details summary p {
-    font-size: 0.88rem !important;
+    font-size: 0.76rem !important;
     font-weight: 600 !important;
     color: #334155 !important;
+    margin: 0 !important;
+}
+
+div[data-testid="stSidebar"] div[data-testid="stExpander"] div[data-testid="stExpanderDetails"] {
+    padding: 6px 8px !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -191,10 +212,10 @@ with st.sidebar:
     )
 
     # 사이드바 하단 수집 데이터 출처 펼침메뉴(expander)
-    st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top: 4px;'></div>", unsafe_allow_html=True)
     with st.expander("📁 수집 데이터 출처"):
         st.markdown("""
-        <div style="font-size:0.78rem; color:#475569; line-height:1.7; font-family:'Pretendard', sans-serif; background-color: #FFFFFF;">
+        <div style="font-size:0.70rem; color:#475569; line-height:1.6; font-family:'Pretendard', sans-serif; background-color: #FFFFFF;">
             <div>· 한국관광공사(KTO) 통계 & 데이터랩</div>
             <div>· 한국문화관광연구원 외래관광객 실태조사</div>
             <div>· 신한카드 & BC카드 소비 빅데이터</div>
@@ -207,7 +228,7 @@ with st.sidebar:
             <div>· 구글 트렌드 분석</div>
             <div>· TripAdvisor 평점 및 리뷰</div>
             <div>· Tumblr 포럼 리뷰 데이터</div>
-            <div style="margin-top: 8px; font-weight: 600; color: #334155; border-top: 1px solid #E2E8F0; padding-top: 6px;">
+            <div style="margin-top: 6px; font-weight: 600; color: #334155; border-top: 1px solid #E2E8F0; padding-top: 4px;">
                 · 기준기간: 2025.06 ~ 2026.05
             </div>
         </div>
