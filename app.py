@@ -133,8 +133,10 @@ section[data-testid="stSidebar"] {
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
 }
 
-/* 라디오 동그라미 아이콘 제거 */
-[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label > div:first-child {
+/* 라디오 동그라미 아이콘 완전 제거 */
+[data-testid="stSidebar"] [data-testid="stRadio"] label > div:first-child,
+[data-testid="stSidebar"] [data-testid="stRadio"] label [data-baseweb="radio"] > div:first-child,
+[data-testid="stSidebar"] [data-testid="stRadio"] [data-baseweb="radio"] input + div {
     display: none !important;
 }
 
@@ -168,24 +170,31 @@ section[data-testid="stSidebar"] {
     font-weight: 700 !important;
 }
 
-/* 수집 데이터 출처 expander 버튼 1.5배 축소 및 콤팩트 디자인 */
+/* 수집 데이터 출처 expander 버튼 가로 너비 상단 메뉴버튼과 동일(100%) 및 콤팩트 스타일 */
 div[data-testid="stSidebar"] div[data-testid="stExpander"] {
+    width: 100% !important;
+    box-sizing: border-box !important;
     background-color: #FFFFFF !important;
-    border: 1px solid #BFDBFE !important;
+    border: 1px solid #DBEAFE !important;
     border-radius: 7px !important;
     margin-top: 6px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
     overflow: hidden !important;
 }
 
 div[data-testid="stSidebar"] div[data-testid="stExpander"] summary {
-    padding: 3px 6px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 5px 9px !important;
     min-height: auto !important;
 }
 
 div[data-testid="stSidebar"] div[data-testid="stExpander"] summary,
-div[data-testid="stSidebar"] div[data-testid="stExpander"] summary * {
-    font-size: 0.52rem !important;
+div[data-testid="stSidebar"] div[data-testid="stExpander"] summary *,
+div[data-testid="stSidebar"] div[data-testid="stExpander"] details summary p {
+    font-size: 0.72rem !important;
     font-weight: 600 !important;
     color: #334155 !important;
     margin: 0 !important;
@@ -194,7 +203,7 @@ div[data-testid="stSidebar"] div[data-testid="stExpander"] summary * {
 }
 
 div[data-testid="stSidebar"] div[data-testid="stExpander"] div[data-testid="stExpanderDetails"] {
-    padding: 4px 6px !important;
+    padding: 5px 8px !important;
 }
 </style>
 """, unsafe_allow_html=True)
