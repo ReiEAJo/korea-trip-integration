@@ -89,11 +89,11 @@ section[data-testid="stSidebar"] {
     border-right: 1px solid #DBEAFE !important;
 }
 
-/* 로고 이미지 원형 및 중앙 정렬 스타일 (1.5배 축소 & 상단 밀착) */
+/* 로고 이미지 원형 및 중앙 정렬 스타일 (크기 확대) */
 [data-testid="stSidebar"] img {
-    width: 65% !important;
+    width: 85% !important;
     border-radius: 50% !important;
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15) !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.18) !important;
     margin-top: 0px !important;
     margin-bottom: 8px !important;
     display: block !important;
@@ -184,7 +184,7 @@ div[data-testid="stSidebar"] div[data-testid="stExpander"] summary {
 }
 
 div[data-testid="stSidebar"] div[data-testid="stExpander"] details summary p {
-    font-size: 0.76rem !important;
+    font-size: 0.68rem !important;
     font-weight: 600 !important;
     color: #334155 !important;
     margin: 0 !important;
@@ -215,7 +215,7 @@ with st.sidebar:
     st.markdown("<div style='margin-top: 4px;'></div>", unsafe_allow_html=True)
     with st.expander("📁 수집 데이터 출처"):
         st.markdown("""
-        <div style="font-size:0.70rem; color:#475569; line-height:1.6; font-family:'Pretendard', sans-serif; background-color: #FFFFFF;">
+        <div style="font-size:0.58rem; color:#475569; line-height:1.5; font-family:'Pretendard', sans-serif; background-color: #FFFFFF;">
             <div>· 한국관광공사(KTO) 통계 & 데이터랩</div>
             <div>· 한국문화관광연구원 외래관광객 실태조사</div>
             <div>· 신한카드 & BC카드 소비 빅데이터</div>
