@@ -179,20 +179,22 @@ div[data-testid="stSidebar"] div[data-testid="stExpander"] {
 }
 
 div[data-testid="stSidebar"] div[data-testid="stExpander"] summary {
-    padding: 4px 8px !important;
+    padding: 3px 6px !important;
     min-height: auto !important;
 }
 
-div[data-testid="stSidebar"] div[data-testid="stExpander"] details summary p {
-    font-size: 0.65rem !important;
+div[data-testid="stSidebar"] div[data-testid="stExpander"] summary,
+div[data-testid="stSidebar"] div[data-testid="stExpander"] summary * {
+    font-size: 0.52rem !important;
     font-weight: 600 !important;
     color: #334155 !important;
     margin: 0 !important;
     white-space: nowrap !important;
+    line-height: 1.2 !important;
 }
 
 div[data-testid="stSidebar"] div[data-testid="stExpander"] div[data-testid="stExpanderDetails"] {
-    padding: 6px 8px !important;
+    padding: 4px 6px !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -216,7 +218,7 @@ with st.sidebar:
     st.markdown("<div style='margin-top: 4px;'></div>", unsafe_allow_html=True)
     with st.expander("📁 수집 데이터 출처"):
         st.markdown("""
-        <div style="font-size:0.58rem; color:#475569; line-height:1.5; font-family:'Pretendard', sans-serif; background-color: #FFFFFF;">
+        <div style="font-size:0.50rem; color:#475569; line-height:1.4; font-family:'Pretendard', sans-serif; background-color: #FFFFFF;">
             <div>· 한국관광공사(KTO) 통계 & 데이터랩</div>
             <div>· 한국문화관광연구원 외래관광객 실태조사</div>
             <div>· 신한카드 & BC카드 소비 빅데이터</div>
