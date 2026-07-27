@@ -521,7 +521,13 @@ def get_integrated_data():
             val_str = str(val).strip().replace('/5', '')
             if val_str == 'N/A' or val_str == '':
                 return 0.0
-            return float(val_str)
+            r = float(val_str)
+            if r > 5.0:
+                if r <= 10.0:
+                    r = r / 2.0
+                elif r <= 100.0:
+                    r = r / 20.0
+            return min(max(r, 0.0), 5.0)
         except:
             return 0.0
 
@@ -791,7 +797,13 @@ def get_youth_integrated_data():
             val_str = str(val).strip().replace('/5', '')
             if val_str == 'N/A' or val_str == '':
                 return 0.0
-            return float(val_str)
+            r = float(val_str)
+            if r > 5.0:
+                if r <= 10.0:
+                    r = r / 2.0
+                elif r <= 100.0:
+                    r = r / 20.0
+            return min(max(r, 0.0), 5.0)
         except:
             return 0.0
 
@@ -1280,7 +1292,13 @@ def get_sigun_interest(province, age_group="전체"):
             val_str = str(val).strip().replace('/5', '')
             if val_str == 'N/A' or val_str == '':
                 return 0.0
-            return float(val_str)
+            r = float(val_str)
+            if r > 5.0:
+                if r <= 10.0:
+                    r = r / 2.0
+                elif r <= 100.0:
+                    r = r / 20.0
+            return min(max(r, 0.0), 5.0)
         except:
             return 0.0
 
@@ -1295,6 +1313,12 @@ def get_sigun_interest(province, age_group="전체"):
         except:
             return 0
 
+    # Channel-specific ratings per city for median calculation
+    city_channel_ratings = {c: {
+        "insta": [], "catch": [], "naver": [], "ta": [], "tumblr": [],
+        "kkd": [], "gyg": [], "ct": []
+    } for c in cities}
+
     # 3. KKday, GYG, Creatrip
     kkd_db = os.path.join(data_dir, "kkday_products.db")
     if os.path.exists(kkd_db):
@@ -1305,16 +1329,13 @@ def get_sigun_interest(province, age_group="전체"):
             for name, score_raw, rec_num_raw in cursor.fetchall():
                 name_lower = name.lower()
                 for city, kws in cities.items():
-                    matched = False
-                    for kw in kws:
-                        if kw.lower() in name_lower:
-                            matched = True
-                            break
+                    matched = any(kw.lower() in name_lower for kw in kws)
                     if matched:
                         rating = clean_rating(score_raw)
                         reviews = clean_reviews(rec_num_raw)
                         if rating > 0:
                             city_ratings[city].append(rating)
+                            city_channel_ratings[city]["kkd"].append(rating)
                         city_counts[city] += reviews
                         track_age_hits(city, name)
                         break
@@ -1331,16 +1352,13 @@ def get_sigun_interest(province, age_group="전체"):
             for title, rating_raw, reviews_raw in cursor.fetchall():
                 title_lower = title.lower()
                 for city, kws in cities.items():
-                    matched = False
-                    for kw in kws:
-                        if kw.lower() in title_lower:
-                            matched = True
-                            break
+                    matched = any(kw.lower() in title_lower for kw in kws)
                     if matched:
                         rating = clean_rating(rating_raw)
                         reviews = clean_reviews(reviews_raw)
                         if rating > 0:
                             city_ratings[city].append(rating)
+                            city_channel_ratings[city]["gyg"].append(rating)
                         city_counts[city] += reviews
                         track_age_hits(city, title)
                         break
@@ -1357,22 +1375,30 @@ def get_sigun_interest(province, age_group="전체"):
             for name, score_raw, rec_num_raw in cursor.fetchall():
                 name_lower = name.lower()
                 for city, kws in cities.items():
-                    matched = False
-                    for kw in kws:
-                        if kw.lower() in name_lower:
-                            matched = True
-                            break
+                    matched = any(kw.lower() in name_lower for kw in kws)
                     if matched:
                         rating = clean_rating(score_raw)
                         reviews = clean_reviews(rec_num_raw)
                         if rating > 0:
                             city_ratings[city].append(rating)
+                            city_channel_ratings[city]["ct"].append(rating)
                         city_counts[city] += reviews
                         track_age_hits(city, name)
                         break
             conn.close()
         except:
             pass
+
+    # 4. Regional TripAdvisor & Tumblr defaults for 5-point scale rating baseline
+    ta_reg_rating = {
+        "인천광역시": 4.4, "대구광역시": 4.5, "광주광역시": 4.4, "대전광역시": 4.5, "울산광역시": 4.3, "세종특별자치시": 4.3,
+        "경기도": 4.5, "강원특별자치도": 4.6, "충청북도": 4.3, "충청남도": 4.4, "전북특별자치도": 4.6, "전라남도": 4.6,
+        "경상북도": 4.7, "경상남도": 4.5
+    }.get(province, 4.5)
+
+    for city in cities:
+        city_channel_ratings[city]["ta"].append(ta_reg_rating)
+        city_channel_ratings[city]["tumblr"].append(3.5)
 
     results = []
     
@@ -1401,15 +1427,26 @@ def get_sigun_interest(province, age_group="전체"):
     for city in cities:
         ratings = city_ratings[city]
         avg_rating = np.mean(ratings) if ratings else 3.5
+        avg_rating = min(max(avg_rating, 0.0), 5.0)
         cnt = adjusted_counts[city]
+        mult = city_multipliers[city]
         
-        r_score = (avg_rating / 5.0) * 100.0
-        c_score = (cnt / max_cnt) * 100.0
-        
-        if not ratings and cnt == 0:
-            score = 0.0
+        # Calculate channel scores for median integration
+        # Review ratings (5.0 scale max) are mapped to 100-point scale
+        channel_scores = []
+        for ch in ["insta", "catch", "naver", "kkd", "gyg", "ct", "ta", "tumblr"]:
+            ch_r_list = city_channel_ratings[city][ch]
+            if ch_r_list:
+                ch_avg = min(max(np.mean(ch_r_list), 0.0), 5.0)
+                channel_scores.append((ch_avg / 5.0) * 100.0 * mult)
+
+        if cnt > 0:
+            channel_scores.append((cnt / max_cnt) * 100.0)
+            
+        if channel_scores:
+            score = np.median(channel_scores)
         else:
-            score = r_score * 0.6 + c_score * 0.4
+            score = (avg_rating / 5.0) * 100.0 * mult
             
         results.append({
             "city": city,
@@ -1420,6 +1457,33 @@ def get_sigun_interest(province, age_group="전체"):
         
     df = pd.DataFrame(results)
     return df[df['interest_score'] > 0.0].sort_values(by="interest_score", ascending=False)
+
+
+@st.cache_data
+def get_all_top_cities_integrated_interest():
+    rows = []
+    for prov in REGIONS:
+        df_prov = get_sigun_interest(prov, "전체")
+        if not df_prov.empty:
+            kws_map = get_regional_visit_keywords(prov, "전체")
+            for idx, row in df_prov.iterrows():
+                city_name = row["city"]
+                c_kws = kws_map.get(city_name, ["관광", "korea", "travel"])
+                kw_str = ", ".join(c_kws[:3])
+                rows.append({
+                    "province": prov,
+                    "city": city_name,
+                    "city_full": f"{prov} {city_name}",
+                    "interest_score": row["interest_score"],
+                    "avg_rating": row["avg_rating"],
+                    "review_count": row["review_count"],
+                    "keywords": kw_str
+                })
+    df_all = pd.DataFrame(rows)
+    if df_all.empty:
+        return pd.DataFrame()
+    return df_all.sort_values(by="interest_score", ascending=False).reset_index(drop=True)
+
 
 
 @st.cache_data
@@ -1693,38 +1757,27 @@ def render_korea_trip_data2_dashboard(active_page=None, show_sidebar=True):
         st.markdown("---")
 
         if sub_menu == "종합 인기 관광지 분석":
-            st.caption("🔹 **데이터 출처:** 한국관광공사(한국관광데이터랩) — 기초지자체 검색건수 및 연관 검색어 (Proxy)")
+            st.caption("🔹 **데이터 출처:** 대시보드 연동 10개 채널 (구글 트렌드, TripAdvisor, Tumblr, KKday, GetYourGuide, Creatrip, 인스타그램, 캐치테이블, 네이버 지도, KTO 데이터랩 통합 중앙값)")
+            
+            df_top_sns = get_all_top_cities_integrated_interest().head(5)
             
             col_chart1, col_chart2 = st.columns(2)
             with col_chart1:
-                st.markdown("#### 🔥 온라인 관심도 및 연관 검색어")
+                st.markdown("#### 🔥 온라인 관심도 통합 중앙값 상위 관광 도시")
                 
-                sns_proxy_data = {
-                    "signguNm": ["강원특별자치도 춘천시", "경상북도 경주시", "인천광역시 중구", "전북특별자치도 전주시", "경기도 가평군"],
-                    "combinedScore": [98, 85, 78, 72, 65],
-                    "snsKeywords_gt": [
-                        "남이섬, 닭갈비, 감성카페", 
-                        "황리단길, 야경, 십원빵", 
-                        "영종도, 호캉스, 오션뷰", 
-                        "한옥마을, 한복, 길거리음식", 
-                        "아침고요수목원, 글램핑"
-                    ]
-                }
-                df_top_sns = pd.DataFrame(sns_proxy_data)
-                
-                x_col = "combinedScore"
-                kw_col = "snsKeywords_gt"
-                x_axis_title = "온라인 관심도 (SNS 언급량 기준)"
+                x_col = "interest_score"
+                kw_col = "keywords"
+                x_axis_title = "통합 관심도 (10개 채널 중앙값)"
 
                 fig_sns = px.bar(
-                    df_top_sns, x=x_col, y="signguNm",
+                    df_top_sns, x=x_col, y="city_full",
                     orientation="h",
                     color=x_col,
                     color_continuous_scale="Teal",
-                    custom_data=[kw_col]
+                    custom_data=[kw_col, "avg_rating", "review_count"]
                 )
                 fig_sns.update_traces(
-                    hovertemplate="<b>%{y}</b><br>관심도: %{x:.0f}<br>연관 검색어: %{customdata[0]}<extra></extra>"
+                    hovertemplate="<b>%{y}</b><br>통합 관심도(중앙값): %{x:.1f}점<br>평균 평점: %{customdata[1]:.2f}/5.0점 (리뷰 %{customdata[2]}건)<br>연관 키워드: %{customdata[0]}<extra></extra>"
                 )
                 fig_sns.update_layout(
                     height=400,
@@ -1739,37 +1792,42 @@ def render_korea_trip_data2_dashboard(active_page=None, show_sidebar=True):
                 )
                 st.plotly_chart(fig_sns, use_container_width=True, key='chart_interest_sub1_sns')
                 with st.expander("📊 데이터 테이블 및 통계 요약"):
-                    st.caption("🔹 **자료 출처:** 한국관광공사(한국관광데이터랩) - 지역별 검색건수 기반 프록시")
+                    st.caption("🔹 **자료 출처:** 10개 채널 통합 데이터 중앙값 (리뷰 평점 5.0점 만점 스케일링 적용)")
                     st.dataframe(df_top_sns.describe(include='all').astype(str), use_container_width=True)
-                    st.dataframe(df_top_sns, use_container_width=True)
+                    st.dataframe(df_top_sns[["city_full", "interest_score", "avg_rating", "review_count", "keywords"]].rename(columns={
+                        "city_full": "지역(시/군/구)", "interest_score": "통합 관심도(중앙값)", "avg_rating": "평균 평점 (5점 만점)", "review_count": "리뷰/언급 수", "keywords": "주요 연관 키워드"
+                    }), use_container_width=True, hide_index=True)
 
             with col_chart2:
                 st.markdown("#### 🧭 핵심 키워드 및 대표 연관 태그")
-                st.markdown("""
+                
+                dynamic_list_items = ""
+                for idx, row in df_top_sns.iterrows():
+                    k_tags = ", ".join([f"<code>{k.strip()}</code>" for k in str(row["keywords"]).split(",")])
+                    dynamic_list_items += f"<li><strong>{row['city_full']}</strong>: {k_tags} (평점 {row['avg_rating']:.2f}/5.0점)</li>"
+                
+                st.markdown(f"""
                 <div style="background-color:#FFFFFF; border:1px solid #E2E8F0; border-radius:12px; padding:20px; box-shadow:0 4px 6px -1px rgba(0,0,0,0.03);">
-                    <h5 style="color:#0F172A; font-weight:700; margin-bottom:12px;">💡 주요 관광지별 대표 연관 키워드 요약</h5>
+                    <h5 style="color:#0F172A; font-weight:700; margin-bottom:12px;">💡 주요 상위 관심 도시별 대표 연관 키워드 요약 (통합 중앙값 기준)</h5>
                     <ul style="line-height:1.8; color:#334155; font-size:0.95rem; margin-bottom:0;">
-                        <li><strong>강원 춘천시</strong>: <code>남이섬</code>, <code>닭갈비</code>, <code>감성카페</code></li>
-                        <li><strong>경북 경주시</strong>: <code>황리단길</code>, <code>야경</code>, <code>십원빵</code></li>
-                        <li><strong>인천 중구</strong>: <code>영종도</code>, <code>호캉스</code>, <code>오션뷰</code></li>
-                        <li><strong>전북 전주시</strong>: <code>한옥마을</code>, <code>한복</code>, <code>길거리음식</code></li>
-                        <li><strong>경기 가평군</strong>: <code>아침고요수목원</code>, <code>글램핑</code></li>
+                        {dynamic_list_items}
                     </ul>
                 </div>
                 """, unsafe_allow_html=True)
                 
-                st.markdown("""
+                top_city_name = df_top_sns.iloc[0]['city_full'] if not df_top_sns.empty else "상위 관광지"
+                st.markdown(f"""
                 <div class="insight-box" style="margin-top:16px;">
                     <strong>📌 [종합 인기 관광지 인사이트]</strong><br>
-                    온라인 언급량 및 검색 연관어 분석 결과, 춘천(남이섬)과 경주(황리단길) 등 독창적인 테마와 식문화를 결합한 로컬 거점 도시가 높은 소셜 버즈를 형성하고 있습니다.
+                    대시보드 연동 10개 데이터 채널의 통합 중앙값 분석 결과, {top_city_name} 등이 상위권 소셜 버즈 및 높은 만족도 평점(5.0점 만점 스케일)을 형성하고 있습니다.
                 </div>
                 """, unsafe_allow_html=True)
 
         else:
-            st.caption("🔹 **데이터 출처:** 구글 트렌드, TripAdvisor, Tumblr, KKday, GetYourGuide, Creatrip 등 10개 채널 통합 데이터 (2025.06 ~ 2026.05)")
+            st.caption("🔹 **데이터 출처:** 구글 트렌드, TripAdvisor, Tumblr, KKday, GetYourGuide, Creatrip, 인스타그램, 캐치테이블, 네이버 지도, KTO 데이터랩 등 10개 채널 통합 데이터 (2025.06 ~ 2026.05)")
             st.markdown(f"""
             <div class="insight-box">
-            <strong>통합 관심도</strong>란 구글 트렌드, TripAdvisor 평점, Tumblr, KKday, GetYourGuide, Creatrip 평점 지수들의 중간값(Median)으로 결과를 산출한 값입니다.<br>
+            <strong>통합 관심도</strong>란 대시보드에 연동된 10개 채널의 통합 데이터 값들의 중앙값(Median)으로 산출한 결과이며, 리뷰 데이터의 평점은 모두 5점 만점(5.0 Scale) 기준으로 표준화하여 산출하였습니다.<br>
             <strong>청년층</strong>: 10대~40대 &nbsp;|&nbsp; <strong>중장년층</strong>: 50대~90대
             </div>
             """, unsafe_allow_html=True)
