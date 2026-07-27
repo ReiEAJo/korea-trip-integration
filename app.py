@@ -218,15 +218,6 @@ div[data-testid="stSidebar"] div[data-testid="stExpander"] div[data-testid="stEx
     border-radius: 0 0 10px 10px !important;
 }
 
-div[data-testid="stSidebar"] button[key="logo_home_button"]:hover {
-    transform: scale(1.03) !important;
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.2) !important;
-}
-
-div[data-testid="stSidebar"] button[key="logo_home_button"]:active {
-    transform: scale(0.97) !important;
-}
-
 div[data-testid="stSidebar"] div[data-testid="stExpander"] details summary p {
     font-size: 0.88rem !important;
     font-weight: 600 !important;
@@ -234,6 +225,38 @@ div[data-testid="stSidebar"] div[data-testid="stExpander"] details summary p {
 }
 </style>
 """, unsafe_allow_html=True)
+
+if logo_b64:
+    st.markdown(f"""
+    <style>
+    /* 클릭 가능한 원형 로고 버튼 스타일 */
+    div[data-testid="stSidebar"] button[key="logo_home_button"] {{
+        background-image: url("data:image/png;base64,{logo_b64}") !important;
+        background-size: cover !important;
+        background-position: center !important;
+        background-repeat: no-repeat !important;
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 1 / 1 !important;
+        border-radius: 50% !important;
+        border: none !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+        cursor: pointer !important;
+        padding: 0 !important;
+        margin: 0 0 12px 0 !important;
+        transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+    }}
+
+    div[data-testid="stSidebar"] button[key="logo_home_button"]:hover {{
+        transform: scale(1.03) !important;
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.2) !important;
+    }}
+
+    div[data-testid="stSidebar"] button[key="logo_home_button"]:active {{
+        transform: scale(0.97) !important;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
 
 # 사이드바 내용 렌더링
 with st.sidebar:
