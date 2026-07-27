@@ -65,135 +65,95 @@ menu_options = [
 if "selected_menu" not in st.session_state:
     st.session_state.selected_menu = menu_options[0]
 
-# 텍스트 형태 메뉴 커스텀 CSS (연한 파란색 사이드바, 가로 길이 통일, 폰트 1.5배, 흰색 펼침목록)
+# 텍스트 형태 메뉴 커스텀 CSS (연한 파란색 사이드바, 가로 길이 통일, 깔끔한 캡슐 라벨, 흰색 펼침목록)
 st.markdown("""
 <style>
-/* 사이드바 상단 여백 축소 및 내용 위로 끌어올리기 */
+/* 사이드바 상단 여백 축소 및 연한 파란색 바탕 */
 [data-testid="stSidebarUserContent"] {
-    padding-top: 0.2rem !important;
+    padding-top: 1rem !important;
 }
 
-[data-testid="stSidebarHeader"] {
-    padding-top: 0.2rem !important;
-    padding-bottom: 0rem !important;
-    margin-bottom: -15px !important;
-}
-
-section[data-testid="stSidebar"] div.block-container {
-    padding-top: 0.2rem !important;
-}
-
-/* 사이드바 접기/숨기기 및 펼치기 버튼(>>) 항상 표시 보장 */
-header[data-testid="stHeader"] {
-    background-color: transparent !important;
-    background: transparent !important;
-    z-index: 99999 !important;
-}
-
-[data-testid="stSidebarHeader"],
-[data-testid="stSidebarCollapseButton"],
-[data-testid="stSidebarCollapsedControl"],
-section[data-testid="stSidebar"] button,
-header[data-testid="stHeader"] button {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    color: #334155 !important;
-    z-index: 999999 !important;
-}
-
-/* 좌측 사이드바 연한 파란색(Soft Light Blue) 바탕 스타일 */
 section[data-testid="stSidebar"] {
     background-color: #EFF6FF !important;
     background: linear-gradient(180deg, #EFF6FF 0%, #F0F9FF 100%) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
     border-right: 1px solid #DBEAFE !important;
 }
 
-section[data-testid="stSidebar"] > div {
-    background-color: transparent !important;
+/* 로고 이미지 원형 및 중앙 정렬 스타일 */
+[data-testid="stSidebar"] img {
+    border-radius: 50% !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15) !important;
+    margin-bottom: 16px !important;
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
 }
 
-/* 텍스트 메뉴 전용 라이트 스타일 */
-div[data-testid="stRadio"] > label {
+/* 라디오 메뉴 가로/세로 레이아웃 규격화 */
+[data-testid="stSidebar"] [data-testid="stRadio"] {
+    width: 100% !important;
+}
+
+[data-testid="stSidebar"] [data-testid="stRadio"] > label {
     display: none !important;
 }
 
-div[data-testid="stRadio"] div[role="radiogroup"] {
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] {
     display: flex !important;
     flex-direction: column !important;
+    gap: 8px !important;
     width: 100% !important;
-    gap: 6px !important;
-    padding: 4px 0px !important;
 }
 
-/* 메뉴 가로 길이 전체 통일 및 캡슐 라벨 */
-div[data-testid="stRadio"] div[role="radiogroup"] label {
-    width: 100% !important;
-    box-sizing: border-box !important;
-    background-color: rgba(255, 255, 255, 0.7) !important;
-    border: 1px solid rgba(219, 234, 254, 0.9) !important;
-    border-radius: 8px !important;
-    padding: 10px 14px !important;
-    margin-bottom: 2px !important;
-    transition: all 0.15s ease-in-out !important;
-    cursor: pointer !important;
+/* 각 라디오 메뉴 캡슐 버튼 */
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label {
     display: flex !important;
     align-items: center !important;
-}
-
-div[data-testid="stRadio"] div[role="radiogroup"] label div[data-testid="stMarkdownContainer"] {
     width: 100% !important;
-}
-
-/* 라디오 원형 아이콘(동그라미) 완전히 제거 (클릭 이벤트 보존) */
-div[data-testid="stRadio"] input[type="radio"] {
-    position: absolute !important;
-    opacity: 0 !important;
-    width: 0 !important;
-    height: 0 !important;
-    pointer-events: none !important;
-}
-
-div[data-testid="stRadio"] [data-baseweb="radio"] > div:first-of-type {
-    display: none !important;
-}
-
-div[data-testid="stRadio"] div[role="radiogroup"] label {
-    pointer-events: auto !important;
+    box-sizing: border-box !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid #DBEAFE !important;
+    border-radius: 10px !important;
+    padding: 10px 14px !important;
+    margin: 0 !important;
     cursor: pointer !important;
+    transition: all 0.15s ease-in-out !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* 라디오 동그라미 아이콘 제거 */
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label > div:first-child {
+    display: none !important;
 }
 
 /* 마우스 호버 효과 */
-div[data-testid="stRadio"] div[role="radiogroup"] label:hover {
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label:hover {
     background-color: #DBEAFE !important;
     border-color: #93C5FD !important;
 }
 
-/* 선택된 메뉴 항목 스타일 */
-div[data-testid="stRadio"] div[role="radiogroup"] label[aria-checked="true"],
-div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) {
+/* 선택된 메뉴 항목 스타일 (파란색 활성화 캡슐) */
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked),
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label[aria-checked="true"] {
     background-color: #2563EB !important;
-    border: 1px solid #1D4ED8 !important;
-    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25) !important;
+    border-color: #1D4ED8 !important;
+    box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3) !important;
 }
 
-div[data-testid="stRadio"] div[role="radiogroup"] label[aria-checked="true"] p,
-div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) p {
-    font-weight: 700 !important;
-    color: #FFFFFF !important;
-}
-
-/* 메뉴 텍스트 폰트 스타일 (기존 대비 1.5배 확대 및 1줄 정렬) */
-div[data-testid="stRadio"] div[role="radiogroup"] p {
+/* 메뉴 텍스트 폰트 스타일 */
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label p {
     font-family: 'Pretendard', sans-serif !important;
-    font-size: 1.22rem !important;
+    font-size: 1.05rem !important;
     font-weight: 600 !important;
     color: #334155 !important;
     margin: 0 !important;
-    line-height: 1.3 !important;
     white-space: nowrap !important;
+}
+
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) p,
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label[aria-checked="true"] p {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
 }
 
 /* 사이드바 expander 및 하단 데이터 목록 바탕 순백색(#FFFFFF) 설정 */
@@ -206,18 +166,6 @@ div[data-testid="stSidebar"] div[data-testid="stExpander"] {
     overflow: hidden !important;
 }
 
-div[data-testid="stSidebar"] div[data-testid="stExpander"] details {
-    background-color: #FFFFFF !important;
-    border-radius: 10px !important;
-}
-
-div[data-testid="stSidebar"] div[data-testid="stExpander"] div[data-testid="stExpanderDetails"] {
-    background-color: #FFFFFF !important;
-    border-top: 1px solid #EFF6FF !important;
-    padding: 12px 14px !important;
-    border-radius: 0 0 10px 10px !important;
-}
-
 div[data-testid="stSidebar"] div[data-testid="stExpander"] details summary p {
     font-size: 0.88rem !important;
     font-weight: 600 !important;
@@ -226,45 +174,10 @@ div[data-testid="stSidebar"] div[data-testid="stExpander"] details summary p {
 </style>
 """, unsafe_allow_html=True)
 
-if logo_b64:
-    st.markdown(f"""
-    <style>
-    /* 클릭 가능한 원형 로고 버튼 스타일 */
-    div[data-testid="stSidebar"] button[key="logo_home_button"] {{
-        background-image: url("data:image/png;base64,{logo_b64}") !important;
-        background-size: cover !important;
-        background-position: center !important;
-        background-repeat: no-repeat !important;
-        width: 100% !important;
-        height: auto !important;
-        aspect-ratio: 1 / 1 !important;
-        border-radius: 50% !important;
-        border: none !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-        cursor: pointer !important;
-        padding: 0 !important;
-        margin: 0 0 12px 0 !important;
-        transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
-    }}
-
-    div[data-testid="stSidebar"] button[key="logo_home_button"]:hover {{
-        transform: scale(1.03) !important;
-        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.2) !important;
-    }}
-
-    div[data-testid="stSidebar"] button[key="logo_home_button"]:active {{
-        transform: scale(0.97) !important;
-    }}
-    </style>
-    """, unsafe_allow_html=True)
-
 # 사이드바 내용 렌더링
 with st.sidebar:
-    if logo_b64:
-        # 클릭 시 첫 번째 메뉴(방한 외래객 추이)로 이동하는 로고 버튼
-        if st.button("", key="logo_home_button", help="클릭 시 메인(첫 번째 메뉴) 화면으로 이동합니다"):
-            st.session_state.main_menu_selection = menu_options[0]
-            st.rerun()
+    if os.path.exists(logo_path):
+        st.image(logo_path, use_container_width=True)
 
     if "main_menu_selection" not in st.session_state:
         st.session_state.main_menu_selection = menu_options[0]
