@@ -227,7 +227,20 @@ def render_foreigner_trend():
     }
     div[data-testid="stRadio"] div[role="radiogroup"] > label {
         margin-bottom: 0px !important;
+        margin-top: 0px !important;
         white-space: nowrap !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    div[data-testid="stRadio"] div[role="radiogroup"] > label p {
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 1 !important;
+        transform: translateY(1px) !important;
+    }
+    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
+        margin-top: 0px !important;
+        transform: translateY(-1px) !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -237,18 +250,18 @@ def render_foreigner_trend():
         st.caption("외국인 관광객들의 관심이 높은 한국 주요 로컬 도시별 키워드 및 데이터 시각화 분석입니다.")
         
         cities_data = {
-            "경주": {"keywords": ["역사", "템플스테이", "불국사", "한옥", "문화재", "첨성대", "전통"], "mentions": 18450, "category": "역사 · 문화유적", "score": 4.88},
-            "강릉": {"keywords": ["바다", "서핑", "카페거리", "해변", "순두부", "힐링", "동해"], "mentions": 16200, "category": "자연 · 힐링 · 카페", "score": 4.82},
-            "안동": {"keywords": ["하회탈", "전통", "한옥", "고택", "역사", "서원", "안동찜닭"], "mentions": 12800, "category": "전통 · 유교문화", "score": 4.79},
-            "수원": {"keywords": ["수원화성", "성곽", "갈비", "당일치기", "역사", "근교", "지하철"], "mentions": 15900, "category": "유네스코 · 식도락", "score": 4.85},
-            "양양": {"keywords": ["서핑", "서피비치", "클럽", "젊음", "바다", "인스타", "해변"], "mentions": 14100, "category": "해양레저 · 액티비티", "score": 4.76},
-            "남해": {"keywords": ["독일마을", "다랭이마을", "남해대교", "힐링", "바다", "드라이브", "휴양"], "mentions": 9800, "category": "자연 · 뷰포인트", "score": 4.72},
-            "울산": {"keywords": ["비즈니스", "출장", "공업", "공장", "바이어", "현대", "산업"], "mentions": 7600, "category": "산업관광 · MICE", "score": 4.60},
-            "평택": {"keywords": ["미군기지", "비즈니스", "산업단지", "평택항", "일자리", "근로자", "상권"], "mentions": 6900, "category": "국제교류 · 비즈니스", "score": 4.58},
-            "창원": {"keywords": ["산업", "비즈니스", "출장", "창원공단", "벚꽃", "군항제", "기계"], "mentions": 8400, "category": "산업 · 축제(군항제)", "score": 4.68},
-            "춘천": {"keywords": ["닭갈비", "남이섬", "호수", "엠티", "가평", "근교", "ITX"], "mentions": 17300, "category": "한류명소 · 자연", "score": 4.86},
-            "여수": {"keywords": ["여수밤바다", "낭만포차", "돌산대교", "케이블카", "간장게장", "해양", "야경"], "mentions": 16800, "category": "해양야경 · 식도락", "score": 4.84},
-            "전주": {"keywords": ["한옥마을", "먹방", "전주비빔밥", "막걸리", "한복", "성당", "전통"], "mentions": 19200, "category": "식도락 · 전통체험", "score": 4.91}
+            "경주": {"keywords": ["역사", "템플스테이", "불국사", "한옥", "문화재", "첨성대", "전통", "신라", "동궁과월지", "수학여행", "황리단길"], "mentions": 18450, "category": "역사 · 문화유적", "score": 4.88},
+            "강릉": {"keywords": ["바다", "서핑", "카페거리", "해변", "순두부", "힐링", "동해", "커피", "경포대", "정동진", "오죽헌"], "mentions": 16200, "category": "자연 · 힐링 · 카페", "score": 4.82},
+            "안동": {"keywords": ["하회탈", "전통", "한옥", "고택", "역사", "서원", "안동찜닭", "간고등어", "월영교", "유교", "탈춤"], "mentions": 12800, "category": "전통 · 유교문화", "score": 4.79},
+            "수원": {"keywords": ["수원화성", "성곽", "갈비", "당일치기", "역사", "근교", "지하철", "행궁동", "통닭", "행리단길", "방화수류정"], "mentions": 15900, "category": "유네스코 · 식도락", "score": 4.85},
+            "양양": {"keywords": ["서핑", "서피비치", "클럽", "젊음", "바다", "인스타", "해변", "파티", "낙산사", "캠핑", "일출"], "mentions": 14100, "category": "해양레저 · 액티비티", "score": 4.76},
+            "남해": {"keywords": ["독일마을", "다랭이마을", "남해대교", "힐링", "바다", "드라이브", "휴양", "유자", "풀빌라", "펜션", "보리암"], "mentions": 9800, "category": "자연 · 뷰포인트", "score": 4.72},
+            "울산": {"keywords": ["비즈니스", "출장", "공업", "공장", "바이어", "현대", "산업", "태화강", "간절곶", "고래", "대왕암공원"], "mentions": 7600, "category": "산업관광 · MICE", "score": 4.60},
+            "평택": {"keywords": ["미군기지", "비즈니스", "산업단지", "평택항", "일자리", "근로자", "상권", "송탄", "수제버거", "국제시장", "반도체"], "mentions": 6900, "category": "국제교류 · 비즈니스", "score": 4.58},
+            "창원": {"keywords": ["산업", "비즈니스", "출장", "창원공단", "벚꽃", "군항제", "기계", "진해", "마산", "로봇", "해양공원"], "mentions": 8400, "category": "산업 · 축제(군항제)", "score": 4.68},
+            "춘천": {"keywords": ["닭갈비", "남이섬", "호수", "엠티", "가평", "근교", "ITX", "소양강", "막국수", "자전거", "카페"], "mentions": 17300, "category": "한류명소 · 자연", "score": 4.86},
+            "여수": {"keywords": ["여수밤바다", "낭만포차", "돌산대교", "케이블카", "간장게장", "해양", "야경", "엑스포", "이순신광장", "오동도", "풀빌라"], "mentions": 16800, "category": "해양야경 · 식도락", "score": 4.84},
+            "전주": {"keywords": ["한옥마을", "먹방", "전주비빔밥", "막걸리", "한복", "성당", "전통", "풍년제과", "가맥", "전동성당", "객리단길"], "mentions": 19200, "category": "식도락 · 전통체험", "score": 4.91}
         }
         
         col_kw1, col_kw2 = st.columns([3.8, 6.2])
@@ -269,7 +282,8 @@ def render_foreigner_trend():
             rank_icons = ["🥇", "🥈", "🥉", "4️⃣", "5️⃣", "6️⃣", "7️⃣"]
             rank_classes = ["badge-gold", "badge-silver", "badge-bronze", "badge-normal", "badge-normal", "badge-normal", "badge-normal"]
             
-            for idx, (kw, icon, cls) in enumerate(zip(kw_list, rank_icons, rank_classes)):
+            # 화면 표시 용도로 Top 7만 배지로 보여줌
+            for idx, (kw, icon, cls) in enumerate(zip(kw_list[:7], rank_icons, rank_classes)):
                 badge_html += f"<span class='badge-chip {cls}'>{icon} {kw}</span>"
             badge_html += "</div>"
             
@@ -301,7 +315,8 @@ def render_foreigner_trend():
             st.markdown(f"#### 📊 **{selected_city_ft} 키워드 데이터 시각화**")
             
             # 가상 언급량 가중치 부여 (순위별 가중치)
-            weights = [35, 25, 18, 12, 10, 8, 6]
+            base_weights = [35, 25, 18, 12, 10, 8, 6, 5, 4, 3, 2]
+            weights = base_weights[:len(kw_list)]
             kw_df = pd.DataFrame({
                 "키워드": kw_list,
                 "추정_언급량": [int(city_info["mentions"] * (w / 100)) for w in weights],
@@ -350,17 +365,22 @@ def render_foreigner_trend():
                 import matplotlib.pyplot as plt
                 import urllib.request
                 
-                # 파이썬 모듈 메모리 핫리로드 격리를 위한 인라인 폰트 다운로더
+                # 절대 경로로 폰트 탐색 (텍스트 깨짐 방지)
+                root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
+                local_font_path = os.path.join(root_dir, "NanumGothic.ttf")
                 font_filename = "NanumGothic.ttf"
-                if os.path.exists(font_filename) and os.path.getsize(font_filename) > 100000:
-                    font_path = font_filename
+                
+                if os.path.exists(local_font_path) and os.path.getsize(local_font_path) > 100000:
+                    font_path = local_font_path
+                elif os.path.exists(font_filename) and os.path.getsize(font_filename) > 100000:
+                    font_path = os.path.abspath(font_filename)
                 else:
                     try:
                         font_url = "https://fonts.gstatic.com/s/nanumgothic/v23/PN_312WUGRFosfW57VF4L2D3.ttf"
                         req = urllib.request.Request(font_url, headers={'User-Agent': 'Mozilla/5.0'})
                         with urllib.request.urlopen(req, timeout=10) as response, open(font_filename, 'wb') as out_file:
                             out_file.write(response.read())
-                        font_path = font_filename
+                        font_path = os.path.abspath(font_filename)
                     except Exception:
                         font_path = "C:/Windows/Fonts/malgun.ttf" if os.name == 'nt' else None
 
@@ -368,18 +388,28 @@ def render_foreigner_trend():
                 
                 wordcloud = WordCloud(
                     width=600, 
-                    height=350, 
+                    height=300, 
                     background_color='white',
                     font_path=font_path,
-                    colormap="YlGnBu",
-                    prefer_horizontal=0.85
+                    colormap="tab10",
+                    prefer_horizontal=0.9,
+                    margin=1,
+                    max_words=50,
+                    relative_scaling=0.35,
+                    min_font_size=10,
+                    max_font_size=90
                 ).generate_from_frequencies(freq_dict)
                 
-                fig_wc, ax_wc = plt.subplots(figsize=(6.5, 3.8))
+                fig_wc, ax_wc = plt.subplots(figsize=(6.5, 3.2))
                 ax_wc.imshow(wordcloud, interpolation='bilinear')
                 ax_wc.axis("off")
                 st.pyplot(fig_wc)
                 plt.close(fig_wc)
+
+            with st.expander(f"📊 {selected_city_ft} 키워드 통계 및 데이터"):
+                st.caption("🔹 **자료 출처:** 소셜 미디어 및 여행 플랫폼 키워드 데이터랩 통합본")
+                st.dataframe(kw_df[['추정_언급량']].describe().astype(str), use_container_width=True)
+                st.dataframe(kw_df[['순위', '키워드', '추정_언급량']], use_container_width=True)
 
     st.markdown("---")
 

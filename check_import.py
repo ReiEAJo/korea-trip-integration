@@ -1,0 +1,1 @@
+import os, sys; sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "korea-trip-data")); import src.app; print("App:", src.app.__file__); import src.views.foreigner_trend; print("Trend:", src.views.foreigner_trend.__file__)
