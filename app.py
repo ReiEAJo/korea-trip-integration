@@ -65,45 +65,33 @@ menu_options = [
 if "selected_menu" not in st.session_state:
     st.session_state.selected_menu = menu_options[0]
 
-# 텍스트 형태 메뉴 커스텀 CSS (연한 파란색 사이드바, 가로 길이 통일, 깔끔한 캡슐 라벨, 콤팩트 펼침목록)
+# 텍스트 형태 메뉴 커스텀 CSS (연한 파란색 사이드바, 가로 길이 통일, 깔끔한 캡슐 라벨, 흰색 펼침목록)
 st.markdown("""
 <style>
-/* 사이드바 상단 여백 최소화 (최상단으로 끌어올리기) */
+/* 1. 사이드바 상단 여백 및 배경 */
 [data-testid="stSidebarUserContent"] {
-    padding-top: 0.1rem !important;
-}
-
-[data-testid="stSidebarHeader"] {
-    padding-top: 0.1rem !important;
-    padding-bottom: 0rem !important;
-    margin-bottom: -20px !important;
-}
-
-section[data-testid="stSidebar"] div.block-container {
-    padding-top: 0.1rem !important;
+    padding-top: 1rem !important;
 }
 
 section[data-testid="stSidebar"] {
-    background-color: #EFF6FF !important;
-    background: linear-gradient(180deg, #EFF6FF 0%, #F0F9FF 100%) !important;
-    border-right: 1px solid #DBEAFE !important;
+    background-color: #F8FAFC !important;
+    background: linear-gradient(180deg, #EFF6FF 0%, #F8FAFC 100%) !important;
+    border-right: 1px solid #E2E8F0 !important;
 }
 
-/* 로고 이미지 원형 및 메뉴 버튼과 동일한 100% 가로 너비 설정 */
+/* 2. 원형 로고 이미지 중앙 정렬 */
 [data-testid="stSidebar"] img {
-    width: 100% !important;
-    max-width: 100% !important;
     border-radius: 50% !important;
-    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.2) !important;
-    margin-top: 0px !important;
-    margin-bottom: 10px !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.15) !important;
+    margin-bottom: 20px !important;
     display: block !important;
     margin-left: auto !important;
     margin-right: auto !important;
+    width: 100% !important;
     object-fit: cover !important;
 }
 
-/* 라디오 메뉴 가로/세로 레이아웃 규격화 */
+/* 3. 라디오 메뉴 컨테이너 */
 [data-testid="stSidebar"] [data-testid="stRadio"] {
     width: 100% !important;
 }
@@ -115,55 +103,59 @@ section[data-testid="stSidebar"] {
 [data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] {
     display: flex !important;
     flex-direction: column !important;
-    gap: 4px !important;
+    gap: 8px !important;
     width: 100% !important;
 }
 
-/* 각 라디오 메뉴 캡슐 버튼 (1.5배 컴팩트 축소) */
+/* 4. 라디오 메뉴 각 버튼 캡슐 카드 스타일 */
 [data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label {
     display: flex !important;
     align-items: center !important;
     width: 100% !important;
     box-sizing: border-box !important;
     background-color: #FFFFFF !important;
-    border: 1px solid #DBEAFE !important;
-    border-radius: 7px !important;
-    padding: 5px 9px !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 10px !important;
+    padding: 10px 14px !important;
     margin: 0 !important;
     cursor: pointer !important;
     transition: all 0.15s ease-in-out !important;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03) !important;
 }
 
-/* 라디오 동그라미 아이콘 완전 제거 */
-[data-testid="stSidebar"] [data-testid="stRadio"] label > div:first-child,
-[data-testid="stSidebar"] [data-testid="stRadio"] label [data-baseweb="radio"] > div:first-child,
-[data-testid="stSidebar"] [data-testid="stRadio"] [data-baseweb="radio"] input + div {
-    display: none !important;
+/* 라디오 마크다운 텍스트 컨테이너 정렬 */
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label div[data-testid="stMarkdownContainer"] {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label p {
+    font-family: 'Pretendard', sans-serif !important;
+    font-size: 0.90rem !important;
+    font-weight: 600 !important;
+    color: #334155 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.3 !important;
+    white-space: nowrap !important;
 }
 
 /* 마우스 호버 효과 */
 [data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label:hover {
-    background-color: #DBEAFE !important;
-    border-color: #93C5FD !important;
+    background-color: #F1F5F9 !important;
+    border-color: #CBD5E1 !important;
 }
 
-/* 선택된 메뉴 항목 스타일 (파란색 활성화 캡슐) */
+/* 5. 선택된 라디오 메뉴 (파란색 캡슐 하이라이트) */
 [data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked),
 [data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label[aria-checked="true"] {
     background-color: #2563EB !important;
+    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%) !important;
     border-color: #1D4ED8 !important;
-    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25) !important;
-}
-
-/* 메뉴 텍스트 폰트 스타일 (1.5배 축소) */
-[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label p {
-    font-family: 'Pretendard', sans-serif !important;
-    font-size: 0.86rem !important;
-    font-weight: 600 !important;
-    color: #334155 !important;
-    margin: 0 !important;
-    white-space: nowrap !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
 }
 
 [data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) p,
@@ -172,40 +164,44 @@ section[data-testid="stSidebar"] {
     font-weight: 700 !important;
 }
 
-/* 수집 데이터 출처 expander 버튼 가로 너비 상단 메뉴버튼과 동일(100%) 및 콤팩트 스타일 */
+/* 선택된 라디오의 원형 서클 스타일링 (파란 배경 시 흰색 동그라미) */
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) div[data-baseweb="radio"] > div,
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label[aria-checked="true"] div[data-baseweb="radio"] > div {
+    border-color: #FFFFFF !important;
+    background-color: transparent !important;
+}
+
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) div[data-baseweb="radio"] > div > div,
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label[aria-checked="true"] div[data-baseweb="radio"] > div > div {
+    background-color: #FFFFFF !important;
+}
+
+/* 6. 수집 데이터 출처 expander 스타일 */
 div[data-testid="stSidebar"] div[data-testid="stExpander"] {
     width: 100% !important;
     box-sizing: border-box !important;
     background-color: #FFFFFF !important;
-    border: 1px solid #DBEAFE !important;
-    border-radius: 7px !important;
-    margin-top: 6px !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 10px !important;
+    margin-top: 14px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03) !important;
     overflow: hidden !important;
 }
 
 div[data-testid="stSidebar"] div[data-testid="stExpander"] summary {
-    width: 100% !important;
-    box-sizing: border-box !important;
-    padding: 5px 9px !important;
+    padding: 10px 14px !important;
     min-height: auto !important;
 }
 
-div[data-testid="stSidebar"] div[data-testid="stExpander"] summary,
-div[data-testid="stSidebar"] div[data-testid="stExpander"] summary *,
 div[data-testid="stSidebar"] div[data-testid="stExpander"] details summary p {
-    font-size: 0.72rem !important;
+    font-size: 0.85rem !important;
     font-weight: 600 !important;
     color: #334155 !important;
     margin: 0 !important;
-    white-space: nowrap !important;
-    line-height: 1.2 !important;
 }
 
 div[data-testid="stSidebar"] div[data-testid="stExpander"] div[data-testid="stExpanderDetails"] {
-    padding: 5px 8px !important;
+    padding: 10px 14px !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -229,7 +225,7 @@ with st.sidebar:
     st.markdown("<div style='margin-top: 4px;'></div>", unsafe_allow_html=True)
     with st.expander("📁 수집 데이터 출처"):
         st.markdown("""
-        <div style="font-size:0.50rem; color:#475569; line-height:1.4; font-family:'Pretendard', sans-serif; background-color: #FFFFFF;">
+        <div style="font-size:0.75rem; color:#475569; line-height:1.6; font-family:'Pretendard', sans-serif; background-color: #FFFFFF;">
             <div>· 한국관광공사(KTO) 통계 & 데이터랩</div>
             <div>· 한국문화관광연구원 외래관광객 실태조사</div>
             <div>· 신한카드 & BC카드 소비 빅데이터</div>
