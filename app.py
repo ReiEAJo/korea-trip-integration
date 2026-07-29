@@ -182,26 +182,31 @@ div[data-testid="stSidebar"] div[data-testid="stExpander"] {
     box-sizing: border-box !important;
     background-color: #FFFFFF !important;
     border: 1px solid #E2E8F0 !important;
-    border-radius: 10px !important;
-    margin-top: 14px !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03) !important;
+    border-radius: 6px !important;
+    margin-top: 6px !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
     overflow: hidden !important;
 }
 
 div[data-testid="stSidebar"] div[data-testid="stExpander"] summary {
-    padding: 10px 14px !important;
-    min-height: auto !important;
+    padding: 4px 8px !important;
+    min-height: 28px !important;
+    display: flex !important;
+    align-items: center !important;
 }
 
-div[data-testid="stSidebar"] div[data-testid="stExpander"] details summary p {
-    font-size: 0.85rem !important;
+div[data-testid="stSidebar"] div[data-testid="stExpander"] summary * {
+    font-size: 0.74rem !important;
     font-weight: 600 !important;
     color: #334155 !important;
     margin: 0 !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    letter-spacing: -0.5px !important;
 }
 
 div[data-testid="stSidebar"] div[data-testid="stExpander"] div[data-testid="stExpanderDetails"] {
-    padding: 10px 14px !important;
+    padding: 6px 10px !important;
 }
 </style>
 """, unsafe_allow_html=True)
