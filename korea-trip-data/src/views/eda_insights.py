@@ -128,16 +128,16 @@ def render_eda_insights():
                 pos_array = ['bottom left', 'bottom center', 'middle left'] * (trace_len // 3 + 1)
             
             trace.textposition = pos_array[:trace_len]
-            trace.textfont = dict(size=12, color="#F8FAFC")
+            trace.textfont = dict(size=12, color="#1E293B")
             trace.marker = dict(size=14, opacity=0.85, line=dict(width=1, color='#FFFFFF'))
-        fig.add_vline(x=median_sns, line_width=1.5, line_dash="dash", line_color="#475569")
-        fig.add_hline(y=median_navi, line_width=1.5, line_dash="dash", line_color="#475569")
+        fig.add_vline(x=median_sns, line_width=1.5, line_dash="dash", line_color="#94A3B8")
+        fig.add_hline(y=median_navi, line_width=1.5, line_dash="dash", line_color="#94A3B8")
         fig.update_layout(
             xaxis_title=x_axis_title, yaxis_title="내비게이션 검색(방문도)",
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
-            font=dict(family="Pretendard, sans-serif", size=14, color="#E2E8F0"),
-            hoverlabel=dict(bgcolor="#E2E8F0", font_size=13, font_family="Pretendard", font=dict(color="#F8FAFC")),
+            font=dict(family="Pretendard, sans-serif", size=14, color="#334155"),
+            hoverlabel=dict(bgcolor="#FFFFFF", font_size=13, font_family="Pretendard", font=dict(color="#1E293B")),
             margin=dict(l=20, r=20, t=20, b=20),
             xaxis=dict(showgrid=True, gridcolor="#E2E8F0", zeroline=False, linecolor="#CBD5E1"),
             yaxis=dict(showgrid=True, gridcolor="#E2E8F0", zeroline=False, linecolor="#CBD5E1")
@@ -340,18 +340,18 @@ def render_eda_insights():
             val_c2 = [min(x, 1.0) for x in val_c2]
 
             fig_radar = go.Figure()
-            fig_radar.add_trace(go.Scatterpolar(r=val_c1, theta=labels, fill='toself', name=city_1, line_color='#00F0FF', fillcolor='rgba(0, 240, 255, 0.4)'))
-            fig_radar.add_trace(go.Scatterpolar(r=val_c2, theta=labels, fill='toself', name=city_2, line_color='#38BDF8', fillcolor='rgba(56, 189, 248, 0.4)'))
+            fig_radar.add_trace(go.Scatterpolar(r=val_c1, theta=labels, fill='toself', name=city_1, line_color='#2563EB', fillcolor='rgba(37, 99, 235, 0.4)'))
+            fig_radar.add_trace(go.Scatterpolar(r=val_c2, theta=labels, fill='toself', name=city_2, line_color='#EA580C', fillcolor='rgba(234, 88, 12, 0.4)'))
             fig_radar.update_layout(
                 polar=dict(
-                    radialaxis=dict(visible=True, range=[0, 1], gridcolor="#334155", linecolor="#CBD5E1"),
-                    angularaxis=dict(gridcolor="#334155", linecolor="#CBD5E1"),
+                    radialaxis=dict(visible=True, range=[0, 1], gridcolor="#CBD5E1", linecolor="#94A3B8"),
+                    angularaxis=dict(gridcolor="#CBD5E1", linecolor="#94A3B8"),
                     bgcolor="rgba(0,0,0,0)"
                 ),
                 plot_bgcolor="rgba(0,0,0,0)",
                 paper_bgcolor="rgba(0,0,0,0)",
-                font=dict(family="Pretendard, sans-serif", size=14, color="#E2E8F0"),
-                hoverlabel=dict(bgcolor="#E2E8F0", font_size=13, font_family="Pretendard", font=dict(color="#F8FAFC")),
+                font=dict(family="Pretendard, sans-serif", size=14, color="#1E293B"),
+                hoverlabel=dict(bgcolor="#FFFFFF", font_size=13, font_family="Pretendard", font=dict(color="#1E293B")),
                 margin=dict(l=40, r=40, t=40, b=40)
             )
             st.plotly_chart(fig_radar, use_container_width=True, key='chart_eda_insights_fig_radar_12')
