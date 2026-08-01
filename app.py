@@ -79,7 +79,7 @@ section[data-testid="stSidebar"] {
     border-right: 1px solid #E2E8F0 !important;
 }
 
-/* 2. 원형 로고 이미지 중앙 정렬 */
+/* 2. 원형 로고 이미지 중앙 정렬 및 100% 너비 */
 [data-testid="stSidebar"] img {
     border-radius: 50% !important;
     box-shadow: 0 4px 14px rgba(37, 99, 235, 0.15) !important;
@@ -88,12 +88,23 @@ section[data-testid="stSidebar"] {
     margin-left: auto !important;
     margin-right: auto !important;
     width: 100% !important;
+    max-width: 100% !important;
     object-fit: cover !important;
 }
 
-/* 3. 라디오 메뉴 컨테이너 */
-[data-testid="stSidebar"] [data-testid="stRadio"] {
+/* 3. 사이드바 요소 컨테이너 및 라디오 메뉴 100% 가로 폭 통일 */
+[data-testid="stSidebar"] [data-testid="stElementContainer"],
+[data-testid="stSidebar"] [data-testid="element-container"] {
     width: 100% !important;
+}
+
+[data-testid="stSidebar"] [data-testid="stRadio"],
+[data-testid="stSidebar"] [data-testid="stRadio"] > div,
+[data-testid="stSidebar"] [data-testid="stRadio"] [data-baseweb="radio"],
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 [data-testid="stSidebar"] [data-testid="stRadio"] > label {
@@ -107,17 +118,20 @@ section[data-testid="stSidebar"] {
     width: 100% !important;
 }
 
-/* 4. 라디오 메뉴 각 버튼 캡슐 카드 스타일 */
-[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label {
+/* 4. 라디오 메뉴 각 버튼 캡슐 카드 스타일 (우측 여백 제거 및 100% 너비) */
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label,
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label[data-baseweb="radio"] {
     display: flex !important;
     align-items: center !important;
     width: 100% !important;
+    max-width: 100% !important;
     box-sizing: border-box !important;
     background-color: #FFFFFF !important;
     border: 1px solid #E2E8F0 !important;
     border-radius: 10px !important;
     padding: 10px 14px !important;
     margin: 0 !important;
+    margin-right: 0 !important;
     cursor: pointer !important;
     transition: all 0.15s ease-in-out !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03) !important;
@@ -177,8 +191,10 @@ section[data-testid="stSidebar"] {
 }
 
 /* 6. 수집 데이터 출처 expander 스타일 */
-div[data-testid="stSidebar"] div[data-testid="stExpander"] {
+div[data-testid="stSidebar"] div[data-testid="stExpander"],
+div[data-testid="stSidebar"] div[data-testid="stExpander"] details {
     width: 100% !important;
+    max-width: 100% !important;
     box-sizing: border-box !important;
     background-color: #FFFFFF !important;
     border: 1px solid #E2E8F0 !important;
@@ -193,6 +209,8 @@ div[data-testid="stSidebar"] div[data-testid="stExpander"] summary {
     min-height: 28px !important;
     display: flex !important;
     align-items: center !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 div[data-testid="stSidebar"] div[data-testid="stExpander"] summary * {
@@ -207,6 +225,8 @@ div[data-testid="stSidebar"] div[data-testid="stExpander"] summary * {
 
 div[data-testid="stSidebar"] div[data-testid="stExpander"] div[data-testid="stExpanderDetails"] {
     padding: 6px 10px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 </style>
 """, unsafe_allow_html=True)
