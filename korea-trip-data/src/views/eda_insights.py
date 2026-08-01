@@ -379,5 +379,161 @@ def render_eda_insights():
             - 매트릭스 지표 상 **{city_2}**는 상대적으로 종합 인프라(합산 {c2_infra}개) 및 해외 리뷰({c2_review}건)가 {infra_diff}하고 매력도가 다를 수 있습니다.
             - {city_1}의 관광 인프라 구성(OTA 및 공공 추천지 벤치마킹)과 방문객 후기 패턴을 분석하여, 글로벌 플랫폼에 매력적인 체험형 인프라 패키지를 전략적으로 유통할 것을 권장합니다.
             """)
+            
+            st.markdown("---")
+            st.header("3. 🤖 맞춤형 롤모델 매칭 (ML 기반)")
+            st.markdown("전국 지자체의 관광 인프라 스펙(OTA, 공공명소, 축제, 다국어가이드, 세계음식점)을 비교하여, 타겟 도시와 가장 유사하지만 성과가 더 좋은 **성공 롤모델**을 코사인 유사도 알고리즘으로 추천합니다.")
+            
+            # ML Data Prep
+            ml_cols = ['OTA_상품수', '공공_스팟수', '축제수', '다국어가이드수', '세계음식점수']
+            df_ml = df_demand.copy()
+            
+            if 'df_ota_agg' in locals() and 'OTA_상품수' not in df_ml.columns:
+                df_ml = pd.merge(df_ml, df_ota_agg[['signguNm', 'OTA_상품수']], on='signguNm', how='left').fillna(0)
+            if 'df_spots_agg' in locals() and '공공_스팟수' not in df_ml.columns:
+                df_ml = pd.merge(df_ml, df_spots_agg[['signguNm', '공공_스팟수']], on='signguNm', how='left').fillna(0)
+            
+            culture_path = os.path.join(data_dir, 'culture_infra_summary.csv')
+            if os.path.exists(culture_path):
+                df_c = pd.read_csv(culture_path)
+                df_c['signguNm'] = df_c['norm_region'].apply(normalize_region)
+                df_ml = pd.merge(df_ml, df_c[['signguNm', '축제수', '다국어가이드수', '세계음식점수']], on='signguNm', how='left').fillna(0)
+            else:
+                for c in ['축제수', '다국어가이드수', '세계음식점수']:
+                    df_ml[c] = 0
+            
+            for c in ml_cols:
+                if c not in df_ml.columns:
+                    df_ml[c] = 0
+            df_ml = df_ml.drop_duplicates(subset=['signguNm']).reset_index(drop=True)
+            
+            from sklearn.metrics.pairwise import cosine_similarity
+            from sklearn.preprocessing import MinMaxScaler
+            from sklearn.ensemble import RandomForestRegressor
+            
+            target_city_ml = st.selectbox("벤치마킹 분석을 위한 타겟 도시(잠재/일반)를 선택하세요", df_ml['signguNm'].unique(), index=list(df_ml['signguNm']).index(city_2) if city_2 in list(df_ml['signguNm']) else 0, key='ml_target_city')
+            
+            target_data = df_ml[df_ml['signguNm'] == target_city_ml]
+            
+            if not target_data.empty:
+                scaler = MinMaxScaler()
+                ml_features = df_ml[ml_cols].copy()
+                ml_features_scaled = scaler.fit_transform(ml_features)
+                
+                sim_matrix = cosine_similarity(ml_features_scaled)
+                target_idx = df_ml.index[df_ml['signguNm'] == target_city_ml].tolist()[0]
+                
+                sim_scores = list(enumerate(sim_matrix[target_idx]))
+                sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+                
+                target_navi = target_data.iloc[0]['naviSearchCo']
+                
+                recommended_cities = []
+                for idx, score in sim_scores:
+                    if idx == target_idx: continue
+                    candidate = df_ml.iloc[idx]
+                    if candidate['naviSearchCo'] > target_navi:
+                        recommended_cities.append({
+                            '추천 롤모델 도시': candidate['signguNm'],
+                            '유사도': score,
+                            '내비검색량 (방문도)': int(candidate['naviSearchCo']),
+                            'OTA 상품수': int(candidate['OTA_상품수']),
+                            '공공 명소수': int(candidate['공공_스팟수']),
+                            '축제 수': int(candidate['축제수'])
+                        })
+                    if len(recommended_cities) >= 3:
+                        break
+                        
+                if recommended_cities:
+                    rec_df = pd.DataFrame(recommended_cities)
+                    rec_df['유사도'] = rec_df['유사도'].apply(lambda x: f"{x*100:.1f}%")
+                    st.success(f"**{target_city_ml}**와 인프라 스펙이 가장 비슷하면서 방문객이 더 많은 **롤모델 도시 Top 3**입니다.")
+                    st.dataframe(rec_df, use_container_width=True)
+                    
+                    infra_ideas = {
+                        'OTA 관광 상품': [
+                            ("스마트 모빌리티 결합 패스", "교통과 주요 관광지를 하나로 묶은 모바일 티켓을 기획하여 접근성을 극대화합니다."),
+                            ("크리에이터 큐레이션 투어", "인플루언서가 구성한 숨겨진 명소 코스를 OTA 플랫폼에 단독 런칭합니다."),
+                            ("야간 특화 숙박 패키지", "체류 시간 증대를 위해 지역 숙박과 연계한 야간 명소 투어 상품을 기획합니다.")
+                        ],
+                        '공공 추천 여행지': [
+                            ("스토리텔링 도보 여행 코스", "공공 데이터로 검증된 명소들을 스토리로 연결하여 미션형 투어를 개발합니다."),
+                            ("친환경 에코 바이크 투어", "자연 경관이 뛰어난 여행지들을 자전거 도로로 연결하는 친환경 상품입니다."),
+                            ("가족 단위 에듀테인먼트", "아이들의 교육과 재미를 충족할 수 있는 박물관 중심의 가족 패키지입니다.")
+                        ],
+                        '지역 축제': [
+                            ("시즌 한정 메가 페스티벌", "성공적인 축제 운영 노하우를 바탕으로, 타겟 도시만의 독창적인 테마 축제를 기획합니다."),
+                            ("로컬 마켓 연계 축제", "지역 소상공인이 참여하는 대규모 마켓을 축제와 결합하여 소비를 유도합니다."),
+                            ("스마트 야간 미디어 축제", "경관 조명과 미디어 아트를 활용한 축제로 MZ세대의 야간 방문을 유도합니다.")
+                        ],
+                        '다국어 가이드': [
+                            ("글로벌 앰버서더 투어", "해외 관광객 맞춤형 언어 지원 투어 프로그램을 신설하여 글로벌 접근성을 높입니다."),
+                            ("스마트 다국어 도슨트", "주요 명소에 다국어 오디오 가이드를 제공하는 스마트 관광 인프라를 구축합니다."),
+                            ("K-컬처 다국어 체험", "한류 문화를 다국어로 배우고 체험할 수 있는 외국인 전용 원데이 클래스입니다.")
+                        ],
+                        '세계음식점': [
+                            ("글로벌 미식 페스타", "다양한 세계 요리를 맛볼 수 있는 푸드 스트리트를 조성해 미식 관광 성지로 브랜딩합니다."),
+                            ("로컬 퓨전 다이닝 코스", "특산물과 세계 각국의 요리법을 결합한 독창적인 퓨전 미식 투어를 기획합니다."),
+                            ("스탬프 랠리 미식 지도", "다양한 음식점들을 엮은 미식 지도를 제작하고 스탬프 랠리 이벤트를 진행합니다.")
+                        ]
+                    }
+                    
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    cols = st.columns(3)
+                    for i, col in enumerate(cols):
+                        if i < len(recommended_cities):
+                            rc = recommended_cities[i]
+                            r_city = rc['추천 롤모델 도시']
+                            r_data = df_ml[df_ml['signguNm'] == r_city].iloc[0]
+                            
+                            infra_vals = {
+                                'OTA 관광 상품': r_data['OTA_상품수'],
+                                '공공 추천 여행지': r_data['공공_스팟수'],
+                                '지역 축제': r_data['축제수'],
+                                '다국어 가이드': r_data['다국어가이드수'],
+                                '세계음식점': r_data['세계음식점수']
+                            }
+                            best_infra = max(infra_vals, key=infra_vals.get)
+                            idea_title, idea_desc = infra_ideas.get(best_infra, [("맞춤형 관광 패키지", "타겟 도시의 특색과 결합한 신규 패키지입니다.")] * 3)[i % 3]
+                            
+                            with col:
+                                with st.container(border=True):
+                                    st.markdown(f"#### 💡 {idea_title}")
+                                    st.markdown(f"**🎯 롤모델:** {r_city}")
+                                    st.markdown(f"**🌟 핵심 강점:** {best_infra}")
+                                    st.markdown(f"<p style='color: #475569; font-size: 14px;'><b>{r_city}</b>의 압도적인 <b>{best_infra}</b> 인프라를 벤치마킹하여 제안합니다. {idea_desc} 이를 통해 현재 {int(target_navi):,}건인 {target_city_ml}의 내비 검색량을 롤모델 수준({int(rc['내비검색량 (방문도)']):,}건)으로 끌어올릴 핵심 전략 상품입니다.</p>", unsafe_allow_html=True)
+                else:
+                    st.info("해당 조건에 맞는 더 우수한 성과의 롤모델 도시를 찾지 못했습니다.")
+            
+            st.markdown("---")
+            st.header("4. 🌳 효율적 인프라 조합 기여도 분석 (Random Forest)")
+            st.markdown("어떤 인프라를 확충하는 것이 방문객 유치(내비 검색량 증가)에 가장 효율적인지 머신러닝(랜덤 포레스트)으로 중요도를 산출합니다.")
+            
+            rf = RandomForestRegressor(n_estimators=100, max_depth=5, random_state=42)
+            X = df_ml[ml_cols]
+            y = df_ml['naviSearchCo']
+            rf.fit(X, y)
+            
+            importances = rf.feature_importances_
+            imp_df = pd.DataFrame({'인프라 요소': ml_cols, '중요도': importances})
+            imp_df = imp_df.sort_values(by='중요도', ascending=True)
+            
+            fig_rf = px.bar(imp_df, x='중요도', y='인프라 요소', orientation='h', title="관광 인프라별 방문객 유치 기여도(Feature Importance)", color='중요도', color_continuous_scale=[[0, '#93C5FD'], [1, '#1E3A8A']])
+            fig_rf.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", margin=dict(l=20, r=20, t=40, b=20))
+            st.plotly_chart(fig_rf, use_container_width=True, key='chart_eda_insights_rf_13')
+            
+            top_feature = imp_df.iloc[-1]['인프라 요소']
+            target_visits = target_data.iloc[0]['naviSearchCo']
+            target_type = target_data.iloc[0].get('cityType', '잠재/일반')
+            
+            st.info(f"""
+            💡 **ML 분석 인사이트 및 전략 제언**
+            
+            **1. 현황 진단**: 현재 타겟 도시인 **{target_city_ml}**은(는) 매트릭스 지표 상 '{target_type}' 그룹에 속해 있으며, 연간 내비게이션 검색량(방문도)은 약 {int(target_visits):,}건 수준을 기록하고 있습니다. 이는 온라인 상의 관심도에 비해 실제 오프라인 방문으로의 전환이 다소 정체되어 있거나, 더 큰 폭의 성장을 위한 모멘텀이 필요한 시점임을 시사합니다.
+            
+            **2. 핵심 인프라 도출**: 의사결정나무 기반의 머신러닝(랜덤 포레스트) 알고리즘을 통해 전국 250여 개 지자체의 관광 인프라와 실제 방문객 수 간의 상관관계를 심층 분석한 결과, 방문객 유치(내비 검색량 증가)에 가장 직접적이고 강력한 기여도를 보이는 인프라 요소는 바로 **'{top_feature}'**로 확인되었습니다. 이는 관광객들이 체류 시간을 늘리고 만족도를 높이는 데 해당 인프라가 결정적인 역할을 한다는 것을 의미합니다.
+            
+            **3. 구체적 벤치마킹 전략**: 따라서 **{target_city_ml}**은(는) 한정된 지자체 예산과 자원을 분산 투자하기보다는, ML 모델이 지목한 핵심 인프라(**{top_feature}**)를 최우선적으로 확충하는 전략적 '선택과 집중'이 필요합니다. 앞서 도출된 '성공 롤모델 도시 Top 3'가 해당 인프라를 어떤 방식으로 운영하고 브랜딩하여 관광객을 끌어모으고 있는지(예: 테마파크 연계 패키지, 글로벌 미식 축제, 스마트 관광 안내 시스템 등)를 면밀히 벤치마킹하여, {target_city_ml}만의 독창적인 로컬 관광 상품으로 기획 및 유통할 것을 강력히 권장합니다.
+            """)
     else:
         st.warning("분석을 위한 API 데이터를 불러올 수 없습니다.")
