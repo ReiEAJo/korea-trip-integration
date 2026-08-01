@@ -110,8 +110,8 @@ def render_demand_analysis():
         top5_reviews = pd.merge(top5_reviews, keyword_df, on='지역', how='left')
         top5_ratings = pd.merge(top5_ratings, keyword_df, on='지역', how='left')
 
-        # 결측 키워드 처리
-        top5_infra['주요 키워드'].fillna('지역 특화 투어, 맞춤형 체험', inplace=True)
+        # 결측 키워드 처리 (확실한 대체를 위해 loc 사용)
+        top5_infra.loc[top5_infra['주요 키워드'].isna(), '주요 키워드'] = '지역 특화 투어, 맞춤형 체험'
 
 
         st.subheader("📊 지역별 관광 상품 인프라 및 평점 분포 분석")
@@ -119,7 +119,7 @@ def render_demand_analysis():
         col1, col2 = st.columns(2)
         with col1:
             fig1 = px.bar(top5_infra, x='상품 수', y='지역', orientation='h', color='상품 수', hover_data=['주요 키워드'],
-                          color_continuous_scale='Blues', title="관광 상품(인프라) 수 상위 5개 지역")
+                          color_continuous_scale=['#93C5FD', '#1E3A8A'], title="관광 상품(인프라) 수 상위 5개 지역")
             fig1.update_traces(hovertemplate='<b>상품 수:</b> %{x}개<br><b>주요 키워드:</b> %{customdata[0]}<extra></extra>')
             fig1.update_layout(yaxis={'categoryorder':'total ascending'})
             st.plotly_chart(fig1, use_container_width=True, key='chart_demand_analysis_fig1_5')
@@ -185,7 +185,7 @@ def render_demand_analysis():
                 top5_spots = df_filtered['지역_시도시군구'].value_counts().head(5).reset_index()
                 top5_spots.columns = ['지역', '추천 수']
                 fig_spots = px.bar(top5_spots, x='추천 수', y='지역', orientation='h', 
-                                   color='추천 수', color_continuous_scale='Blues')
+                                   color='추천 수', color_continuous_scale=['#93C5FD', '#1E3A8A'])
                 fig_spots.update_layout(
                     yaxis={'categoryorder':'total ascending'},
                     plot_bgcolor="rgba(0,0,0,0)",
@@ -197,11 +197,6 @@ def render_demand_analysis():
                     yaxis_title=None
                 )
                 st.plotly_chart(fig_spots, use_container_width=True, key='chart_demand_analysis_fig_spots_7')
-                with st.expander("📊 추천 수 통계 요약"):
-                    st.caption("🔹 **자료 출처:** 문화공공데이터광장 - 추천 여행지 빈도수")
-                    st.dataframe(top5_spots.describe(include='all').astype(str), use_container_width=True)
-                    st.dataframe(top5_spots, use_container_width=True)
-                
             with col4:
                 st.subheader("🍰 주요 광역시도별 관광지 점유 비중")
                 top_sido = df_filtered['지역_시도'].value_counts().reset_index()
@@ -234,13 +229,12 @@ def render_demand_analysis():
                 pie_data['keywords'] = keywords_list
                     
                 fig_pie = px.treemap(pie_data, path=[px.Constant("관광지 점유 비중"), '광역시도'], values='추천 수', 
-                                     color='추천 수', color_continuous_scale='Blues',
-                                     custom_data=['keywords'])
+                                     color='추천 수', color_continuous_scale=['#93C5FD', '#1E3A8A'])
                 fig_pie.update_traces(
                     textinfo='label+percent entry', 
                     textfont_size=14, 
                     marker=dict(line=dict(color='#E2E8F0', width=1)),
-                    hovertemplate='<b>%{label}</b><br>추천 수: %{value}<br>핵심 키워드: %{customdata[0]}<extra></extra>'
+                    hovertemplate='<b>%{label}</b><br>추천 수: %{value}<extra></extra>'
                 )
                 fig_pie.update_layout(
                     plot_bgcolor="rgba(0,0,0,0)",
@@ -250,9 +244,86 @@ def render_demand_analysis():
                     hoverlabel=dict(bgcolor="#E2E8F0", font_size=13, font_family="Pretendard", font=dict(color="#F8FAFC")),
                 )
                 st.plotly_chart(fig_pie, use_container_width=True, key='chart_demand_analysis_fig_pie_8')
-                with st.expander("📊 점유 비중 데이터 테이블"):
+            
+            # --- 셀렉트박스 및 Expander를 별도의 Row로 분리하여 가로 정렬 ---
+            col_ctrl1, col_ctrl2 = st.columns(2)
+            with col_ctrl1:
+                pass # 좌측 높이 맞춤용 빈 공간
+                
+            with col_ctrl2:
+                # 지역 목록 생성 및 상호작용을 위한 셀렉트박스
+                region_list = ["전체 보기"] + pie_data['광역시도'].tolist()
+                selected_region = st.selectbox("🎯 **특정 지역 인사이트 및 해시태그 보기:**", region_list, index=0)
+                is_expanded = selected_region != "전체 보기"
+                
+            col_exp1, col_exp2 = st.columns(2)
+            with col_exp1:
+                with st.expander("📊 추천 수 통계 요약"):
+                    st.caption("🔹 **자료 출처:** 문화공공데이터광장 - 추천 여행지 빈도수")
+                    st.dataframe(top5_spots.describe(include='all').astype(str), use_container_width=True)
+                    st.dataframe(top5_spots, use_container_width=True)
+                    
+            with col_exp2:
+                with st.expander("📊 점유 비중 데이터 및 주요 키워드 (TF-IDF)", expanded=is_expanded):
                     st.caption("🔹 **자료 출처:** 문화공공데이터광장 - 주요 광역시도별 관광지 비중")
-                    st.dataframe(pie_data, use_container_width=True)
+                    
+                    # 지역별 AI 요약 인사이트 사전
+                    region_insights = {
+                        "강원": "푸른 바다와 수려한 산세가 어우러진 청정 자연 속에서의 힐링과 다이내믹한 액티비티를 경험하세요.",
+                        "전남": "아름다운 다도해와 풍부한 남도 미식이 기다리는 곳, 낭만 가득한 바다와 여유를 만끽해 보세요.",
+                        "경북": "천년의 역사가 살아 숨쉬는 찬란한 문화유산과 함께, 깊이 있는 과거로의 여행을 떠나보세요.",
+                        "경기": "도심에서 가장 가까운 휴식처, 테마파크부터 고즈넉한 수목원까지 다채로운 주말 나들이를 즐기세요.",
+                        "경남": "남해안의 보석 같은 풍경이 펼쳐지는 곳, 한려수도의 절경과 다도해 섬 여행의 매력에 빠져보세요.",
+                        "충남": "서해안의 아름다운 붉은 일몰과 백제의 숨결이 깃든 곳, 편안한 휴양과 낭만을 선사합니다.",
+                        "전북": "가장 한국적인 아름다움을 간직한 전통의 고장, 맛과 멋이 어우러진 문화의 정수를 경험하세요.",
+                        "충북": "내륙의 바다라 불리는 아름다운 호수와 웅장한 산세가 품은 곳, 대자연이 주는 고즈넉한 휴식을 누려보세요.",
+                        "인천": "과거와 미래가 공존하는 글로벌 항구도시, 이색적인 섬 여행부터 도심 속 화려한 야경까지 즐겨보세요.",
+                        "대전": "과학과 낭만이 어우러진 중심 도시, 여유로운 도심 속 테마 공원과 자연휴양림에서 힐링해 보세요.",
+                        "광주": "예술과 민주주의의 긍지가 흐르는 예향, 다채로운 문화예술 명소와 남도 미식의 향연을 즐겨보세요.",
+                        "대구": "뜨거운 열정과 다이내믹한 활기가 넘치는 곳, 골목골목 숨겨진 근대 문화 명소와 활기찬 시장을 탐험하세요.",
+                        "울산": "영남알프스의 은빛 억새 비경을 품은 생태도시, 대자연의 경이로움과 힐링을 동시에 만끽하세요.",
+                        "전체 보기": "전국 각 지역의 독특한 문화와 매력이 담긴 핵심 키워드를 통해, 숨겨진 여행 트렌드와 인사이트를 한눈에 파악해 보세요."
+                    }
+                    # AI 요약 인사이트 카드 표시 (HTML/CSS)
+                    insight_text = region_insights.get(selected_region, region_insights["전체 보기"])
+                    st.markdown(f'''
+                        <div style="background: linear-gradient(135deg, #f0f7ff 0%, #e0e7ff 100%); 
+                                    padding: 20px; 
+                                    border-radius: 12px; 
+                                    border-left: 5px solid #4f46e5;
+                                    margin-bottom: 20px;
+                                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+                            <h4 style="margin-top: 0; color: #1e3a8a; display: flex; align-items: center;">
+                                💡 {selected_region} 여행 테마 인사이트
+                            </h4>
+                            <p style="font-size: 1.05rem; color: #334155; margin-bottom: 0;">
+                                "{insight_text}"
+                            </p>
+                        </div>
+                    ''', unsafe_allow_html=True)
+                    
+                    # 선택된 데이터 필터링
+                    display_data = pie_data if selected_region == "전체 보기" else pie_data[pie_data['광역시도'] == selected_region]
+                    
+                    st.markdown("##### 🏷️ TF-IDF 핵심 해시태그")
+                    
+                    has_keywords = False
+                    for idx, row in display_data.iterrows():
+                        if row['keywords'] and row['keywords'] != "키워드 없음":
+                            has_keywords = True
+                            # 해시태그 뱃지 스타일 적용
+                            tags = ""
+                            for k in row['keywords'].split(','):
+                                tags += f'<span style="display:inline-block; background-color:#e2e8f0; color:#334155; border-radius:15px; padding:4px 12px; margin: 4px; font-size:0.9rem; font-weight:500;">#{k.strip()}</span>'
+                            
+                            st.markdown(f"**{row['광역시도']}**: {tags}", unsafe_allow_html=True)
+                    
+                    if not has_keywords:
+                        st.info("선택하신 지역은 추출된 핵심 키워드가 없습니다.")
+                    
+                    st.markdown("<hr style='margin: 10px 0;'>", unsafe_allow_html=True)
+                    st.dataframe(display_data[['광역시도', '추천 수']], use_container_width=True)
+
                 
             st.info("**분석 인사이트:** 대표적인 대도시 및 대형 관광 거점(서울, 부산, 제주)을 제외하고 분석한 결과, "
                     "**강원, 전남, 경북** 등 자연 경관과 역사/문화 자원이 풍부한 권역의 추천 빈도가 매우 높게 나타났습니다. "
@@ -313,7 +384,7 @@ def render_demand_analysis():
         ''')
         
         st.markdown('---')
-        st.header("3. 🔍 지역 인프라와 방문 규모 상관관계 분석")
+        st.header("3. 🔍 지역 인프라와 관광 관심도 상관관계 분석")
         
         import numpy as np
         from sklearn.preprocessing import MinMaxScaler
@@ -408,17 +479,17 @@ def render_demand_analysis():
             # Scatter plot
             scatter_df = merged.sort_values(by='visit_volume', ascending=False).head(20).reset_index(drop=True)
             scatter_df = scatter_df[['norm_region', 'visit_volume', 'ota_count', 'spot_count', '축제수', '다국어가이드수', '세계음식점수', 'infra_score']].copy()
-            scatter_df.columns = ['지역', '방문 규모 (검색건수)', 'OTA 상품수', '공공데이터 여행지수', '축제수', '다국어가이드수', '세계음식점수', '종합 인프라 점수']
+            scatter_df.columns = ['지역', '관광 관심도 (검색건수)', 'OTA 상품수', '공공데이터 여행지수', '축제수', '다국어가이드수', '세계음식점수', '종합 인프라 점수']
             
             # 텍스트 겹침 방지 (우선순위가 높은 점부터 라벨 할당)
             labels = []
             labeled_points = []
             x_max = scatter_df['종합 인프라 점수'].max() or 1
-            y_max = scatter_df['방문 규모 (검색건수)'].max() or 1
+            y_max = scatter_df['관광 관심도 (검색건수)'].max() or 1
             
             for idx, row in scatter_df.iterrows():
                 nx = row['종합 인프라 점수'] / x_max
-                ny = row['방문 규모 (검색건수)'] / y_max
+                ny = row['관광 관심도 (검색건수)'] / y_max
                 
                 overlap = False
                 for pt_x, pt_y in labeled_points:
@@ -436,12 +507,12 @@ def render_demand_analysis():
                     
             scatter_df['표시 라벨'] = labels
             
-            fig_scatter = px.scatter(scatter_df, x='종합 인프라 점수', y='방문 규모 (검색건수)', text='표시 라벨', size='방문 규모 (검색건수)',
-                                     color='방문 규모 (검색건수)', color_continuous_scale='Blues', size_max=40,
-                                     title="관광 인프라(상품+공공 추천) vs 외국인 방문 규모")
+            fig_scatter = px.scatter(scatter_df, x='종합 인프라 점수', y='관광 관심도 (검색건수)', text='표시 라벨', size='관광 관심도 (검색건수)',
+                                     color='관광 관심도 (검색건수)', color_continuous_scale='Blues', size_max=40,
+                                     title="관광 인프라(상품+공공 추천) vs 외국인 관광 관심도")
                                      
             if len(scatter_df) > 1:
-                z1 = np.polyfit(scatter_df['종합 인프라 점수'], scatter_df['방문 규모 (검색건수)'], 1)
+                z1 = np.polyfit(scatter_df['종합 인프라 점수'], scatter_df['관광 관심도 (검색건수)'], 1)
                 p1 = np.poly1d(z1)
                 x_range1 = np.linspace(scatter_df['종합 인프라 점수'].min(), scatter_df['종합 인프라 점수'].max(), 50)
                 fig_scatter.add_trace(go.Scatter(x=x_range1, y=p1(x_range1), mode='lines', line=dict(color='red', dash='dash'), showlegend=False, hoverinfo='skip'))
@@ -455,18 +526,18 @@ def render_demand_analysis():
                 
             fig_scatter.update_traces(
                 textposition='middle right',
-                hovertemplate='<b>지역:</b> %{customdata[0]}<br><b>인프라 점수:</b> %{x:.1f}점<br><b>방문 규모:</b> %{y:,.0f}건<extra></extra>',
+                hovertemplate='<b>지역:</b> %{customdata[0]}<br><b>인프라 점수:</b> %{x:.1f}점<br><b>관광 관심도:</b> %{y:,.0f}건<extra></extra>',
                 customdata=scatter_df[['지역']]
             )
-            fig_scatter.update_layout(height=500, xaxis_title="종합 인프라 점수 (합산 기준)", yaxis_title="방문 규모 (검색건수)")
+            fig_scatter.update_layout(height=500, xaxis_title="종합 인프라 점수 (합산 기준)", yaxis_title="관광 관심도 (검색건수)")
             st.plotly_chart(fig_scatter, use_container_width=True, key='chart_demand_analysis_fig_scatter_10')
             with st.expander("📊 종합 인프라 점수 및 데이터 요약"):
                 st.caption("🔹 **자료 출처:** 한국관광데이터랩, OTA 데이터, 문화공공데이터광장 통합 지표")
                 st.dataframe(scatter_df.describe().astype(str), use_container_width=True)
                 st.dataframe(scatter_df, use_container_width=True)
     
-            st.success(f"**분석 인사이트:** OTA 플랫폼 기반 관광 상품 수와 문화공공데이터 추천 여행지 빈도수를 단순 합산한 '종합 인프라 점수'와 실제 방문 규모 간에는 **상관관계(r={corr1:.2f})**를 확인할 수 있습니다. "
-                       "이는 민간 플랫폼의 인프라와 공공 데이터의 관광지 추천 빈도가 높은 지역일수록 실제 방문 수요로도 유의미하게 연결되고 있음을 시사합니다.")
+            st.success(f"**분석 인사이트:** OTA 플랫폼 기반 관광 상품 수와 문화공공데이터 추천 여행지 빈도수를 단순 합산한 '종합 인프라 점수'와 관광 관심도(검색건수) 간에는 **상관관계(r={corr1:.2f})**를 확인할 수 있습니다. "
+                       "이는 민간 플랫폼의 인프라와 공공 데이터의 관광지 추천 빈도가 높은 지역일수록 온라인 상의 관광 관심도(목적지 검색)로도 유의미하게 연결되고 있음을 시사합니다.")
         else:
             st.warning("상관관계 분석을 위한 데이터가 충분하지 않습니다.")
 
