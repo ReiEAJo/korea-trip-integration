@@ -450,36 +450,89 @@ def render_eda_insights():
                     st.success(f"**{target_city_ml}**와 인프라 스펙이 가장 비슷하면서 방문객이 더 많은 **롤모델 도시 Top 3**입니다.")
                     st.dataframe(rec_df, use_container_width=True)
                     
+                    import random
+                    
+                    try:
+                        data_dir_ota = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data')
+                        df_ota = pd.read_csv(os.path.join(data_dir_ota, 'ota_data.csv'), encoding='utf-8')
+                    except Exception:
+                        df_ota = pd.DataFrame(columns=['title', 'region', 'platform'])
+                        
                     infra_ideas = {
                         'OTA 관광 상품': [
                             ("스마트 모빌리티 결합 패스", "교통과 주요 관광지를 하나로 묶은 모바일 티켓을 기획하여 접근성을 극대화합니다."),
                             ("크리에이터 큐레이션 투어", "인플루언서가 구성한 숨겨진 명소 코스를 OTA 플랫폼에 단독 런칭합니다."),
-                            ("야간 특화 숙박 패키지", "체류 시간 증대를 위해 지역 숙박과 연계한 야간 명소 투어 상품을 기획합니다.")
+                            ("야간 특화 숙박 패키지", "체류 시간 증대를 위해 지역 숙박과 연계한 야간 명소 투어 상품을 기획합니다."),
+                            ("워케이션 롱스테이 기획전", "원격 근무자를 타겟으로 한 장기 투숙 및 공유 오피스 결합 상품입니다."),
+                            ("시크릿 스팟 프라이빗 투어", "소규모 그룹을 위한 프라이빗 가이드 투어로 고급화 전략을 취합니다."),
+                            ("로컬 명인 원데이 클래스", "지역 장인과 함께하는 체험형 상품을 글로벌 플랫폼에 등록합니다."),
+                            ("친환경 제로웨이스트 투어", "환경을 생각하는 여행자를 위한 착한 소비 지향 관광 상품입니다."),
+                            ("반려동물 동반 여행 패키지", "펫팸족을 위한 전용 숙소 및 출입 가능 명소를 묶은 상품입니다."),
+                            ("액티비티 어드벤처 패스", "지역 내 다양한 해양/산악 레포츠를 할인된 가격에 즐기는 패스입니다."),
+                            ("웰니스 스파 힐링 코스", "자연 속에서 즐기는 스파와 명상을 결합한 치유형 관광 상품입니다.")
                         ],
                         '공공 추천 여행지': [
                             ("스토리텔링 도보 여행 코스", "공공 데이터로 검증된 명소들을 스토리로 연결하여 미션형 투어를 개발합니다."),
                             ("친환경 에코 바이크 투어", "자연 경관이 뛰어난 여행지들을 자전거 도로로 연결하는 친환경 상품입니다."),
-                            ("가족 단위 에듀테인먼트", "아이들의 교육과 재미를 충족할 수 있는 박물관 중심의 가족 패키지입니다.")
+                            ("가족 단위 에듀테인먼트", "아이들의 교육과 재미를 충족할 수 있는 박물관 중심의 가족 패키지입니다."),
+                            ("뉴트로 골목 탐방", "오래된 골목길을 재생하여 감성 사진 명소로 브랜딩한 투어입니다."),
+                            ("AR 기반 스마트 스팟 탐험", "공공 명소에 증강현실 기술을 도입하여 스마트한 탐험 경험을 제공합니다."),
+                            ("역사 문화 인문학 투어", "지역의 역사적 인물이나 사건을 테마로 한 깊이 있는 인문학 코스입니다."),
+                            ("계절 맞춤형 포토 스팟 투어", "사계절 변화가 아름다운 명소들을 묶어 인생샷 스팟으로 홍보합니다."),
+                            ("로컬 크리에이터 픽 명소", "지역 청년들이 추천하는 숨겨진 공공 명소를 재발견하는 코스입니다."),
+                            ("시니어 맞춤형 무장애 투어", "노년층과 장애인도 편안하게 즐길 수 있는 배리어프리 명소 패키지입니다."),
+                            ("야간 경관 조명 특화 투어", "밤에 더 아름다운 공공 명소들을 연결하여 야간 체류를 유도합니다.")
                         ],
                         '지역 축제': [
                             ("시즌 한정 메가 페스티벌", "성공적인 축제 운영 노하우를 바탕으로, 타겟 도시만의 독창적인 테마 축제를 기획합니다."),
                             ("로컬 마켓 연계 축제", "지역 소상공인이 참여하는 대규모 마켓을 축제와 결합하여 소비를 유도합니다."),
-                            ("스마트 야간 미디어 축제", "경관 조명과 미디어 아트를 활용한 축제로 MZ세대의 야간 방문을 유도합니다.")
+                            ("스마트 야간 미디어 축제", "경관 조명과 미디어 아트를 활용한 축제로 MZ세대의 야간 방문을 유도합니다."),
+                            ("글로벌 K-POP 커버 댄스 페스티벌", "해외 한류 팬들을 타겟으로 한 댄스 경연 대회 및 축제를 개최합니다."),
+                            ("지역 특산물 요리 경연 대회", "특산물을 활용한 요리 대회를 축제로 승화시켜 미식 관광을 활성화합니다."),
+                            ("시민 참여형 퍼레이드", "지역 주민들이 직접 기획하고 참여하는 대규모 퍼레이드 축제입니다."),
+                            ("친환경 에코 페스티벌", "일회용품 없는 친환경 테마 축제로 ESG 경영 실천과 관광을 결합합니다."),
+                            ("메타버스 축제 동시 개최", "오프라인 축제를 메타버스 공간에서도 동시에 즐길 수 있도록 하이브리드로 운영합니다."),
+                            ("청년 문화 예술 프린지 페스티벌", "지역 청년 예술가들의 버스킹과 전시가 도심 곳곳에서 열리는 축제입니다."),
+                            ("계절별 테마 릴레이 축제", "사계절 내내 각기 다른 테마의 소규모 축제를 릴레이로 개최하여 방문을 유도합니다.")
                         ],
                         '다국어 가이드': [
                             ("글로벌 앰버서더 투어", "해외 관광객 맞춤형 언어 지원 투어 프로그램을 신설하여 글로벌 접근성을 높입니다."),
                             ("스마트 다국어 도슨트", "주요 명소에 다국어 오디오 가이드를 제공하는 스마트 관광 인프라를 구축합니다."),
-                            ("K-컬처 다국어 체험", "한류 문화를 다국어로 배우고 체험할 수 있는 외국인 전용 원데이 클래스입니다.")
+                            ("K-컬처 다국어 체험", "한류 문화를 다국어로 배우고 체험할 수 있는 외국인 전용 원데이 클래스입니다."),
+                            ("AI 실시간 통번역 가이드 로봇", "주요 관광지에 AI 로봇을 배치하여 실시간 다국어 안내 서비스를 제공합니다."),
+                            ("외국인 유학생 글로벌 서포터즈", "지역 내 외국인 유학생들을 가이드로 양성하여 동향 사람들에게 친근한 투어를 제공합니다."),
+                            ("다국어 스마트 관광 지도 앱", "GPS 기반으로 현재 위치에 맞는 다국어 관광 정보를 팝업으로 제공하는 앱을 개발합니다."),
+                            ("글로벌 인플루언서 팸투어", "해외 유명 유튜버를 초청하여 다국어로 소개되는 지역 관광 콘텐츠를 대량 생산합니다."),
+                            ("다국어 지원 프리미엄 콜택시", "언어 장벽 없이 이동할 수 있도록 다국어 통역이 지원되는 외국인 전용 택시를 운영합니다."),
+                            ("외국인 전용 24시간 헬프 데스크", "관광 불편 사항을 다국어로 즉시 해결해 주는 챗봇 및 콜센터를 운영합니다."),
+                            ("다국어 병기 글로벌 사이니지 정비", "모든 관광 안내 표지판과 메뉴판에 주요 다국어를 표준화하여 병기합니다.")
                         ],
                         '세계음식점': [
                             ("글로벌 미식 페스타", "다양한 세계 요리를 맛볼 수 있는 푸드 스트리트를 조성해 미식 관광 성지로 브랜딩합니다."),
                             ("로컬 퓨전 다이닝 코스", "특산물과 세계 각국의 요리법을 결합한 독창적인 퓨전 미식 투어를 기획합니다."),
-                            ("스탬프 랠리 미식 지도", "다양한 음식점들을 엮은 미식 지도를 제작하고 스탬프 랠리 이벤트를 진행합니다.")
+                            ("스탬프 랠리 미식 지도", "다양한 음식점들을 엮은 미식 지도를 제작하고 스탬프 랠리 이벤트를 진행합니다."),
+                            ("비건 앤 베지테리언 푸드 투어", "채식주의 외국인 관광객을 위한 특화된 미식 코스를 개발합니다."),
+                            ("할랄 인증 레스토랑 확충", "중동 및 동남아시아 무슬림 관광객을 위한 할랄 안심 식당 인프라를 늘립니다."),
+                            ("미슐랭 셰프 초청 팝업 스토어", "해외 유명 셰프가 지역 특산물로 세계 요리를 선보이는 이벤트를 개최합니다."),
+                            ("글로벌 길거리 음식 야시장", "전 세계 유명 스트릿 푸드를 한 곳에서 맛볼 수 있는 야간 특화 시장을 엽니다."),
+                            ("요리법 교환 글로벌 쿠킹 클래스", "지역 주민과 외국인이 서로의 전통 요리를 가르쳐 주는 체험 프로그램입니다."),
+                            ("세계 음식 테마 푸드트럭 존", "청년 창업가들이 세계 각국의 음식을 판매하는 힙한 푸드트럭 존을 조성합니다."),
+                            ("다국어 스마트 오더 시스템 도입", "언어 장벽 없이 세계 음식을 쉽게 주문할 수 있는 스마트 메뉴판을 보급합니다.")
                         ]
                     }
+
+                    desc_templates = [
+                        "<p style='color: #475569; font-size: 14px;'><b>{r_city}</b>의 압도적인 <b>{best_infra}</b> 인프라를 벤치마킹하여 제안합니다. {idea_desc} 이를 통해 현재 {target_navi}건인 <b>{target_city_ml}</b>의 내비 검색량을 롤모델 수준({r_navi}건)으로 끌어올릴 핵심 전략 상품입니다.</p>",
+                        "<p style='color: #475569; font-size: 14px;'>성공 사례인 <b>{r_city}</b>의 <b>{best_infra}</b> 강점을 참고하여 기획한 맞춤형 전략입니다. {idea_desc} <b>{target_city_ml}</b>의 현재 검색량({target_navi}건)을 롤모델({r_navi}건) 수준으로 대폭 높일 수 있습니다.</p>",
+                        "<p style='color: #475569; font-size: 14px;'><b>{target_city_ml}</b>의 관광 잠재력을 일깨우기 위해 <b>{r_city}</b>가 입증한 <b>{best_infra}</b> 성공 모델을 활용합니다. {idea_desc} 현재 {target_navi}건의 방문도를 장기적으로 {r_navi}건까지 성장시킬 비장의 무기입니다.</p>",
+                        "<p style='color: #475569; font-size: 14px;'>선도적인 <b>{r_city}</b>의 <b>{best_infra}</b> 인프라를 <b>{target_city_ml}</b>만의 색깔로 재해석했습니다. {idea_desc} 이를 도입한다면 {target_navi}건에 머무는 트래픽을 {r_navi}건 수준의 핫플레이스로 견인할 수 있을 것입니다.</p>"
+                    ]
                     
                     st.markdown("<br>", unsafe_allow_html=True)
                     cols = st.columns(3)
+                    
+                    used_ideas = set()
+                    
                     for i, col in enumerate(cols):
                         if i < len(recommended_cities):
                             rc = recommended_cities[i]
@@ -494,14 +547,50 @@ def render_eda_insights():
                                 '세계음식점': r_data['세계음식점수']
                             }
                             best_infra = max(infra_vals, key=infra_vals.get)
-                            idea_title, idea_desc = infra_ideas.get(best_infra, [("맞춤형 관광 패키지", "타겟 도시의 특색과 결합한 신규 패키지입니다.")] * 3)[i % 3]
+                            
+                            idea_title = "맞춤형 관광 패키지"
+                            idea_desc = "타겟 도시의 특색과 결합한 신규 패키지입니다."
+                            
+                            if best_infra == 'OTA 관광 상품' and not df_ota.empty:
+                                r_sigungu = r_city.split()[-1]
+                                matched_ota = df_ota[df_ota['region'].str.contains(r_sigungu, na=False)]
+                                available_ota = matched_ota[~matched_ota['title'].isin(used_ideas)]
+                                
+                                if not available_ota.empty:
+                                    sampled = available_ota.sample(n=1).iloc[0]
+                                    idea_title = sampled['title']
+                                    platform_name = sampled.get('platform', '글로벌 OTA')
+                                    idea_desc = f"{platform_name} 등 글로벌 플랫폼에서 인기리에 판매 중인 실제 '{r_city}' 투어 상품을 벤치마킹하여 제안합니다."
+                                    used_ideas.add(idea_title)
+                                else:
+                                    pool = [item for item in infra_ideas.get(best_infra, []) if item[0] not in used_ideas]
+                                    if not pool: pool = infra_ideas.get(best_infra, [])
+                                    chosen = random.choice(pool)
+                                    idea_title, idea_desc = chosen[0], chosen[1]
+                                    used_ideas.add(idea_title)
+                            else:
+                                pool = [item for item in infra_ideas.get(best_infra, []) if item[0] not in used_ideas]
+                                if not pool: pool = infra_ideas.get(best_infra, [])
+                                chosen = random.choice(pool)
+                                idea_title, idea_desc = chosen[0], chosen[1]
+                                used_ideas.add(idea_title)
+                                
+                            chosen_template = random.choice(desc_templates)
+                            formatted_desc = chosen_template.format(
+                                r_city=r_city,
+                                best_infra=best_infra,
+                                idea_desc=idea_desc,
+                                target_navi=f"{int(target_navi):,}",
+                                target_city_ml=target_city_ml,
+                                r_navi=f"{int(rc['내비검색량 (방문도)']):,}"
+                            )
                             
                             with col:
                                 with st.container(border=True):
                                     st.markdown(f"#### 💡 {idea_title}")
                                     st.markdown(f"**🎯 롤모델:** {r_city}")
                                     st.markdown(f"**🌟 핵심 강점:** {best_infra}")
-                                    st.markdown(f"<p style='color: #475569; font-size: 14px;'><b>{r_city}</b>의 압도적인 <b>{best_infra}</b> 인프라를 벤치마킹하여 제안합니다. {idea_desc} 이를 통해 현재 {int(target_navi):,}건인 {target_city_ml}의 내비 검색량을 롤모델 수준({int(rc['내비검색량 (방문도)']):,}건)으로 끌어올릴 핵심 전략 상품입니다.</p>", unsafe_allow_html=True)
+                                    st.markdown(formatted_desc, unsafe_allow_html=True)
                 else:
                     st.info("해당 조건에 맞는 더 우수한 성과의 롤모델 도시를 찾지 못했습니다.")
             
