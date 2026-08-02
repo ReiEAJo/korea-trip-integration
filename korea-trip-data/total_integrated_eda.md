@@ -1,3 +1,13 @@
+---
+marp: true
+---
+<style>
+section {
+  overflow-y: auto;
+}
+</style>
+
+
 # 통합 한국 관광 데이터 탐색적 분석 (EDA) 보고서
 
 대시보드 링크: [https://korea-trip-integration.streamlit.app/](https://korea-trip-integration.streamlit.app/)

@@ -115,17 +115,30 @@ def render_eda_insights():
             }
         )
         
-        # 텍스트 겹침 방지를 위해 사분면별로 텍스트 방향을 밀어내고, 지터링(배열 순환) 적용
+        # 텍스트 겹침 방지를 위해 사분면별로 텍스트 방향을 밀어내고 특정 겹침 지역 보정
         for trace in fig.data:
-            trace_len = len(trace.x) if trace.x is not None else 0
+            trace_len = len(trace.x) if getattr(trace, 'x', None) is not None else 0
+            
             if "스타" in trace.name:
-                pos_array = ['top right', 'top center', 'middle right'] * (trace_len // 3 + 1)
+                default_pos = ['top right', 'top center', 'middle right']
             elif "잠재" in trace.name:
-                pos_array = ['bottom right', 'bottom center', 'middle right'] * (trace_len // 3 + 1)
+                default_pos = ['bottom right', 'bottom center', 'middle right']
             elif "안정" in trace.name:
-                pos_array = ['top left', 'top center', 'middle left'] * (trace_len // 3 + 1)
+                default_pos = ['top left', 'top center', 'middle left']
             else:
-                pos_array = ['bottom left', 'bottom center', 'middle left'] * (trace_len // 3 + 1)
+                default_pos = ['bottom left', 'bottom center', 'middle left']
+                
+            pos_array = []
+            if getattr(trace, 'text', None) is not None:
+                for i, t in enumerate(trace.text):
+                    if t == "경남 창원시":
+                        pos_array.append("top center")
+                    elif t == "충남 천안시":
+                        pos_array.append("bottom center")
+                    else:
+                        pos_array.append(default_pos[i % len(default_pos)])
+            else:
+                pos_array = default_pos * (trace_len // len(default_pos) + 1)
             
             trace.textposition = pos_array[:trace_len]
             trace.textfont = dict(size=12, color="#1E293B")
@@ -381,7 +394,7 @@ def render_eda_insights():
             """)
             
             st.markdown("---")
-            st.header("3. 🤖 맞춤형 롤모델 매칭 (ML 기반)")
+            st.header("3. 🎯 맞춤형 롤모델 매칭 (ML 기반)")
             st.markdown("전국 지자체의 관광 인프라 스펙(OTA, 공공명소, 축제, 다국어가이드, 세계음식점)을 비교하여, 타겟 도시와 가장 유사하지만 성과가 더 좋은 **성공 롤모델**을 코사인 유사도 알고리즘으로 추천합니다.")
             
             # ML Data Prep
@@ -499,25 +512,25 @@ def render_eda_insights():
                             ("글로벌 앰버서더 투어", "해외 관광객 맞춤형 언어 지원 투어 프로그램을 신설하여 글로벌 접근성을 높입니다."),
                             ("스마트 다국어 도슨트", "주요 명소에 다국어 오디오 가이드를 제공하는 스마트 관광 인프라를 구축합니다."),
                             ("K-컬처 다국어 체험", "한류 문화를 다국어로 배우고 체험할 수 있는 외국인 전용 원데이 클래스입니다."),
-                            ("AI 실시간 통번역 가이드 로봇", "주요 관광지에 AI 로봇을 배치하여 실시간 다국어 안내 서비스를 제공합니다."),
-                            ("외국인 유학생 글로벌 서포터즈", "지역 내 외국인 유학생들을 가이드로 양성하여 동향 사람들에게 친근한 투어를 제공합니다."),
-                            ("다국어 스마트 관광 지도 앱", "GPS 기반으로 현재 위치에 맞는 다국어 관광 정보를 팝업으로 제공하는 앱을 개발합니다."),
-                            ("글로벌 인플루언서 팸투어", "해외 유명 유튜버를 초청하여 다국어로 소개되는 지역 관광 콘텐츠를 대량 생산합니다."),
-                            ("다국어 지원 프리미엄 콜택시", "언어 장벽 없이 이동할 수 있도록 다국어 통역이 지원되는 외국인 전용 택시를 운영합니다."),
-                            ("외국인 전용 24시간 헬프 데스크", "관광 불편 사항을 다국어로 즉시 해결해 주는 챗봇 및 콜센터를 운영합니다."),
-                            ("다국어 병기 글로벌 사이니지 정비", "모든 관광 안내 표지판과 메뉴판에 주요 다국어를 표준화하여 병기합니다.")
+                            ("AI 통번역 가이드 로봇", "주요 관광지에 AI 로봇을 배치하여 실시간 다국어 안내 서비스를 제공합니다."),
+                            ("외국인 유학생 서포터즈", "지역 내 외국인 유학생들을 가이드로 양성하여 동향 사람들에게 친근한 투어를 제공합니다."),
+                            ("스마트 다국어 관광 지도", "GPS 기반으로 현재 위치에 맞는 다국어 관광 정보를 팝업으로 제공하는 앱을 개발합니다."),
+                            ("글로벌 인플루언서 팸투어", "해외 유명 유튜버를 초청하여 다국어로 소개되는 지역 관광 콘텐츠 대량 생산합니다."),
+                            ("다국어 프리미엄 콜택시", "언어 장벽 없이 이동할 수 있도록 다국어 통역이 지원되는 외국인 전용 택시를 운영합니다."),
+                            ("외국인 24H 헬프 데스크", "관광 불편 사항을 다국어로 즉시 해결해 주는 챗봇 및 콜센터를 운영합니다."),
+                            ("글로벌 다국어 사이니지", "모든 관광 안내 표지판과 메뉴판에 주요 다국어를 표준화하여 병기합니다.")
                         ],
                         '세계음식점': [
                             ("글로벌 미식 페스타", "다양한 세계 요리를 맛볼 수 있는 푸드 스트리트를 조성해 미식 관광 성지로 브랜딩합니다."),
                             ("로컬 퓨전 다이닝 코스", "특산물과 세계 각국의 요리법을 결합한 독창적인 퓨전 미식 투어를 기획합니다."),
                             ("스탬프 랠리 미식 지도", "다양한 음식점들을 엮은 미식 지도를 제작하고 스탬프 랠리 이벤트를 진행합니다."),
-                            ("비건 앤 베지테리언 푸드 투어", "채식주의 외국인 관광객을 위한 특화된 미식 코스를 개발합니다."),
+                            ("비건 & 베지테리언 투어", "채식주의 외국인 관광객을 위한 특화된 미식 코스를 개발합니다."),
                             ("할랄 인증 레스토랑 확충", "중동 및 동남아시아 무슬림 관광객을 위한 할랄 안심 식당 인프라를 늘립니다."),
-                            ("미슐랭 셰프 초청 팝업 스토어", "해외 유명 셰프가 지역 특산물로 세계 요리를 선보이는 이벤트를 개최합니다."),
+                            ("미슐랭 셰프 초청 팝업", "해외 유명 셰프가 지역 특산물로 세계 요리를 선보이는 이벤트를 개최합니다."),
                             ("글로벌 길거리 음식 야시장", "전 세계 유명 스트릿 푸드를 한 곳에서 맛볼 수 있는 야간 특화 시장을 엽니다."),
-                            ("요리법 교환 글로벌 쿠킹 클래스", "지역 주민과 외국인이 서로의 전통 요리를 가르쳐 주는 체험 프로그램입니다."),
-                            ("세계 음식 테마 푸드트럭 존", "청년 창업가들이 세계 각국의 음식을 판매하는 힙한 푸드트럭 존을 조성합니다."),
-                            ("다국어 스마트 오더 시스템 도입", "언어 장벽 없이 세계 음식을 쉽게 주문할 수 있는 스마트 메뉴판을 보급합니다.")
+                            ("요리법 교환 글로벌 클래스", "지역 주민과 외국인이 서로의 전통 요리를 가르쳐 주는 체험 프로그램입니다."),
+                            ("세계 음식 테마 푸드트럭", "청년 창업가들이 세계 각국의 음식을 판매하는 힙한 푸드트럭 존을 조성합니다."),
+                            ("다국어 스마트 오더 시스템", "언어 장벽 없이 세계 음식을 쉽게 주문할 수 있는 스마트 메뉴판을 보급합니다.")
                         ]
                     }
 
@@ -587,10 +600,17 @@ def render_eda_insights():
                             
                             with col:
                                 with st.container(border=True):
-                                    st.markdown(f"#### 💡 {idea_title}")
+                                    st.markdown(f"<h4 style='font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 0.5rem;' title='{idea_title}'>💡 {idea_title}</h4>", unsafe_allow_html=True)
                                     st.markdown(f"**🎯 롤모델:** {r_city}")
                                     st.markdown(f"**🌟 핵심 강점:** {best_infra}")
                                     st.markdown(formatted_desc, unsafe_allow_html=True)
+                        else:
+                            with col:
+                                with st.container(border=True):
+                                    st.markdown("<h4 style='font-size: 1.1rem; color: #94A3B8; margin-bottom: 0.5rem;'>⏳ 추가 롤모델 탐색 중...</h4>", unsafe_allow_html=True)
+                                    st.markdown("<p style='color: #94A3B8;'><strong>🎯 롤모델:</strong> 데이터 분석 중</p>", unsafe_allow_html=True)
+                                    st.markdown("<p style='color: #94A3B8;'><strong>🌟 핵심 강점:</strong> 데이터 분석 중</p>", unsafe_allow_html=True)
+                                    st.markdown("<p style='color: #94A3B8; font-size: 14px; line-height: 1.6;'>선택하신 타겟 도시의 관광 잠재력을 최대로 끌어올릴 수 있는 맞춤형 전략을 찾고 있습니다. 전국 지자체의 인프라 스펙을 비교 분석하여, 현재의 방문객 수(내비 검색량)를 롤모델 수준으로 대폭 성장시킬 수 있는 또 다른 우수 벤치마킹 사례를 탐색 중입니다.</p>", unsafe_allow_html=True)
                 else:
                     st.info("해당 조건에 맞는 더 우수한 성과의 롤모델 도시를 찾지 못했습니다.")
             
