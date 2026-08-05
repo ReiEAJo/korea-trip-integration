@@ -10,5 +10,6 @@ matplotlib
 seaborn
 koreanize-matplotlib
 folium
+streamlit-folium
 apify-client
 wordcloud
